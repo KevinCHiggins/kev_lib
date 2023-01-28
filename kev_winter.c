@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "kev_winter.h"
 
 #define WIDTH 320
 #define HEIGHT 240
 
-u_int32_t buff[WIDTH * HEIGHT];
+uint32_t buff[WIDTH * HEIGHT];
 
 #ifdef _WIN32
 #include <windows.h>
@@ -87,7 +88,7 @@ void reset_buffer_info()
 void redraw()
 {
 
-	StretchDIBits(hdc, 0, 0, WIDTH, h, 0, 0, WIDTH, HEIGHT, buff, &buff_info, DIB_RGB_COLORS, SRCCOPY);
+	StretchDIBits(hdc, 0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, buff, &buff_info, DIB_RGB_COLORS, SRCCOPY);
 
 }
 
