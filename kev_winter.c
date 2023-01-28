@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include "kev_winter.h"
 
 #define WIDTH 320
@@ -15,22 +14,17 @@ const char class_name[] = "True and Living";
 HDC hdc;
 BITMAPINFO buff_info;
 void reset_buffer_info();
+LRESULT CALLBACK window_proc(HWND handle, UINT msg, WPARAM uint_param, LPARAM long_param);
 
-// note I could just use the global msg variable to the same effect
-// probably a sign I should refactor
-// Also, this method is not in the header file for the moment,
-// as so far only poll_event should be quitting
-void close_and_exit(MSG quit_msg)
-{
-	exit(quit_msg.wParam);
-}
 void init()
 {
-	
+	WNDCLASSEX window_class; // = {0};
+	memset(&window_class, 0, sizeof(window_class));
+	HINSTANCE instance = GetModuleHandle(NULL);
 	window_class.cbSize		= sizeof(WNDCLASSEX);
 	window_class.style		= CS_HREDRAW | CS_VREDRAW;
 	window_class.lpfnWndProc	= window_proc;
-	window_class.hInstance		= main_inst;
+	window_class.hInstance		= instance;
 	window_class.lpszClassName	= class_name;
 	
 	if (!RegisterClassEx(&window_class))
@@ -45,7 +39,7 @@ void init()
 		"Tyrian Purple",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, WIDTH, HEIGHT,
-		NULL, NULL, main_inst, NULL);
+		NULL, NULL, instance, NULL);
 
 	if (handle == NULL)
 	{
@@ -60,7 +54,8 @@ void init()
 }
 void poll_event()
 {
-	// we don't specify the window handle because doing so means the quit message won't be received
+
+	MSG msg;
 	if (GetMessage(&msg, NULL, 0, 0) > 0)
 	{
 		TranslateMessage(&msg);
@@ -68,7 +63,7 @@ void poll_event()
 	}
 	else
 	{
-		close_and_exit(msg);
+		exit(msg.wParam);
 	}
 
 	
@@ -100,7 +95,6 @@ LRESULT CALLBACK window_proc(HWND handle, UINT msg, WPARAM uint_param, LPARAM lo
 	case WM_CLOSE:
 		{
 		DestroyWindow(handle);
-		DeleteObject(purple_brush);
 		}
 
 	break;

@@ -8,9 +8,9 @@
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)
 {
-	main_inst = instance;
+
 	
-	init();
+	init(instance);
 
 	while (1)
 	{
