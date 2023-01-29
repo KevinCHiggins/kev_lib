@@ -22,6 +22,15 @@ typedef struct point_float point_float;
 #include <windows.h>
 #endif
 
+#ifdef __linux__
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+
+
+#endif
+
 struct kev_win{
 	int width;
 	int height;
@@ -30,36 +39,23 @@ struct kev_win{
 #ifdef _WIN32
 	HWND handle;
 #endif
+#ifdef __linux__
+
+	Display *dis;
+	int screen;
+	Window x_win;
+	GC gc;
+	XImage *buff_ximage;
+
+#endif
 };
 
 typedef struct kev_win kev_win;
 
-
 unsigned int rgb(unsigned char r, unsigned char g, unsigned char b);
-
 
 void poll_event(kev_win *win);
 void redraw();
 void init(kev_win *win);
 
-
-	
-#ifdef __linux__
-
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
-Display *dis;
-int screen;
-Window win;
-GC gc;
-KeySym key;
-
-XImage *buff_ximage;
-Visual vis;
-
-XImage set_ximage();
-void close_x11();
-
-#endif
 #endif

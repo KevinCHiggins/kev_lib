@@ -7,6 +7,49 @@
 
 char title[] = "kev_winter Example";
 
+unsigned int rgb(unsigned char r, unsigned char g, unsigned char b)
+{
+	unsigned int result = 0;
+	result += r << 16;
+	result += g << 8;
+	result += b;
+	return result;
+}
+
+void fill_buffer(uint32_t *buff)
+{
+	for (int scanline = 0; scanline < HEIGHT; scanline++)
+	{
+		for (int pixel = 0; pixel < WIDTH; pixel += 1)
+		{
+			buff[scanline * WIDTH + pixel] = rgb(scanline, pixel, scanline * pixel);
+		}
+	}
+}
+
+int run()
+
+{
+	uint32_t buff[WIDTH * HEIGHT];
+	fill_buffer(buff);
+	kev_win win = {
+	.width = WIDTH,
+	.height = HEIGHT,
+	.title = title,
+	.buffer = buff
+	};
+
+
+
+	init(&win);
+
+	while (1)
+	{
+		poll_event(&win);
+
+	}
+}
+
 #ifdef _WIN32
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)
@@ -17,38 +60,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, 
 	freopen_s(&fp, "CONIN$", "r", stdin);
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 	freopen_s(&fp, "CONOUT$", "w", stderr);
-	uint32_t buff[WIDTH * HEIGHT];
-
-	unsigned int rgb(unsigned char r, unsigned char g, unsigned char b)
-	{
-		unsigned int result = 0;
-		result += r << 16;
-		result += g << 8;
-		result += b;
-		return result;
-	}
-	for (int scanline = 0; scanline < HEIGHT; scanline++)
-	{
-		for (int pixel = 0; pixel < WIDTH; pixel += 1)
-		{
-			buff[scanline * WIDTH + pixel] = rgb(scanline, pixel, scanline * pixel);
-		}
-	}
-	kev_win win = {
-	.width = WIDTH,
-	.height = HEIGHT,
-	.title = title,
-	.buffer = buff
-	};
+	return run();
 
 
-	init(&win);
-
-	while (1)
-	{
-		poll_event(&win);
-
-	}
 	//MessageBox(NULL, "Loop finished", "Error", MB_ICONEXCLAMATION | MB_OK);
 
 }
@@ -61,13 +75,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, 
 
 int main()
 {
-	printf("Linux");
-	init();
-	while (1)
-	{
-		poll_event();
-		redraw();
-	}
-	return 0;
+	return run();
 }
 #endif

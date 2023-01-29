@@ -129,35 +129,41 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 
 #ifdef __linux__
 
+XImage set_ximage();
+void close_x11();
+
 Atom wm_delete;
-const long event_mask = StructureNotifyMask | ExposureMask;
+const long event_mask = StructureNotifyMask | ExposureMask | SubstructureNotifyMask;
 
 
-void init()
+void init(kev_win *win)
 {
 
-	dis = XOpenDisplay((char *)0);
+	win->dis = XOpenDisplay((char *)0);
 	
 
-	if (dis == NULL)
+	if (win->dis == NULL)
 	{
 		printf("Cannot open display\n");
 		exit(1);
 	}
-	wm_delete = XInternAtom(dis, "WM_TAKE_FOCUS", True);
-	screen = DefaultScreen(dis);
 
-	win = XCreateSimpleWindow(dis, DefaultRootWindow(dis), 0, 0, WIDTH, HEIGHT, 5, 0, 0);
-	XSetStandardProperties(dis, win, "Tyrian Purple", "Yo", None, NULL, 0, NULL);
+	win->screen = DefaultScreen(win->dis);
+
+
+
+
+	win->x_win = XCreateSimpleWindow(win->dis, DefaultRootWindow(win->dis), 0, 0, win->width, win->height, 5, 0, 0);
+	XSetStandardProperties(win->dis, win->x_win, win->title, "Yo", None, NULL, 0, NULL);
 	Atom *protocols_list;
 	int num_protocols;
 
-
-	if (!XSetWMProtocols(dis, win, &wm_delete, 1))
+	wm_delete = XInternAtom(win->dis, "WM_TAKE_FOCUS", True);
+	if (!XSetWMProtocols(win->dis, win->x_win, &wm_delete, 1))
 	{
 		printf("Cannot set delete window protoocl");
 	}
-	if (XGetWMProtocols(dis, win, &protocols_list, &num_protocols))
+	if (XGetWMProtocols(win->dis, win->x_win, &protocols_list, &num_protocols))
 	{
 		printf("Got %d protocols", num_protocols);
 
@@ -166,33 +172,58 @@ void init()
 	{
 		printf("Failed to get protocols");
 	}
-	gc = XCreateGC(dis, win, 0, 0);
-	XSync(dis, False);
+	win->gc = XCreateGC(win->dis, win->x_win, 0, 0);
+	XStoreName(win->dis, win->x_win, win->title);
+	XSync(win->dis, False);
 
-	XWindowAttributes attr;
-	XGetWindowAttributes(dis, win, &attr);
+	//XWindowAttributes attr;
+	//XGetWindowAttributes(win->dis, win->x_win, &attr);
+	XSelectInput(win->dis, win->x_win, ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask |
+                   ButtonReleaseMask | PointerMotionMask);
 
-	XClearWindow(dis, win);
-	XMapRaised(dis, win);
+	XClearWindow(win->dis,win->x_win);
+	XMapRaised(win->dis, win->x_win);
+	redraw(win);
+
+
 
 }
-void close_x11()
+void close_x11(kev_win *win)
 {
 	printf("Exiting");
-	XFreeGC(dis, gc);
-	XDestroyWindow(dis, win);
-	XCloseDisplay(dis);
+	XFreeGC(win->dis, win->gc);
+	XDestroyWindow(win->dis, win->x_win);
+	XCloseDisplay(win->dis);
 	//exit(0);
 }
 void poll_event(kev_win *win)
 {
+
 	XEvent event;
-	if (XCheckWindowEvent(dis, win, event_mask, &event))
+	//printf("%ld", LastKnownRequestProcessed(dis));
+	XFlush(win->dis);
+	//if (XPending(win->dis)) printf("P: %d", XPending(win->dis));
+	//printf("%d", event.type);
+	while (XPending(win->dis))
 	{
-		/*
+		XNextEvent(win->dis, &event);
+		//printf("Event %d\n", event.type);
 		if (event.type == Expose)
 		{
+			redraw(win);
+		}
+	}
+	if (XCheckWindowEvent(win->dis, win->x_win, NoEventMask, &event)) printf("Erm");
+	while (XCheckWindowEvent(win->dis, win->x_win, NoEventMask, &event))
+
+	{
+		printf("Er");
+		if (event.type) printf("E;");
+		
+		if (event.type == ConfigureNotify)
+		{
 			printf("Thing");
+			exit(1);
 			redraw();
 		}
 
@@ -205,27 +236,25 @@ void poll_event(kev_win *win)
 			printf("Client message");
 			if (event.xclient.data.l[0] = wm_delete)
 			{
-				close_x11();
+				close_x11(win);
 			}
 		}
-		*/
+		
 	}
 
 }
-void redraw()
+void redraw(kev_win *win)
 
 {
-	XWindowAttributes attr;
-	XGetWindowAttributes(dis, win, &attr);
 
-	if (!buff_ximage)
+	if (!win->buff_ximage)
 	{
-		buff_ximage = XCreateImage(dis, DefaultVisual(dis, screen), 24, ZPixmap, 0, (char *)buff, WIDTH, HEIGHT, 32, 0);
-		XInitImage(buff_ximage);
+		win->buff_ximage = XCreateImage(win->dis, DefaultVisual(win->dis, win->screen), 24, ZPixmap, 0, (char *)win->buffer, win->width, win->height, 32, 0);
+		XInitImage(win->buff_ximage);
 	}
 
-	XPutImage(dis, win, gc, buff_ximage, 0, 0, 0, 0, WIDTH, HEIGHT);
-	XMapWindow(dis, win);
+	XPutImage(win->dis, win->x_win, win->gc, win->buff_ximage, 0, 0, 0, 0, win->width, win->height);
+	//XMapWindow(win->dis, win->x_win);
 	//XClearWindow(dis, win);
 }
 /*
