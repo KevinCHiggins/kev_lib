@@ -121,13 +121,15 @@ LRESULT CALLBACK window_proc(HWND handle, UINT msg, WPARAM uint_param, LPARAM lo
 #ifdef __linux__
 
 Atom wm_delete;
+const long event_mask = StructureNotifyMask | ExposureMask;
+
 
 void init()
 {
 
 	dis = XOpenDisplay((char *)0);
 	
-	event_mask = StructureNotifyMask | ExposureMask;
+
 	if (dis == NULL)
 	{
 		printf("Cannot open display\n");
@@ -174,15 +176,17 @@ void close_x11()
 	//exit(0);
 }
 void poll_event()
-
-
 {
+	XEvent event;
 	if (XCheckWindowEvent(dis, win, event_mask, &event))
 	{
+		/*
 		if (event.type == Expose)
 		{
+			printf("Thing");
 			redraw();
 		}
+
 		else if (event.type == DestroyNotify)
 		{
 			printf("Funk");
@@ -192,10 +196,12 @@ void poll_event()
 			printf("Client message");
 			if (event.xclient.data.l[0] = wm_delete)
 			{
-				//close_x11();
+				close_x11();
 			}
 		}
+		*/
 	}
+
 }
 void redraw()
 
@@ -213,21 +219,23 @@ void redraw()
 	XMapWindow(dis, win);
 	//XClearWindow(dis, win);
 }
+/*
 XImage set_ximage()
 {
 	XImage xi;
 	xi.width = WIDTH;
 	xi.height = HEIGHT;
-	xi.xoffset = 0;			/* number of pixels offset in X direction */
-	xi.format = ZPixmap;			/* XYBitmap, XYPixmap, ZPixmap */
-	xi.data = (char *) buff;			/* pointer to image data */
-	xi.byte_order = LSBFirst;			/* data byte order, LSBFirst, MSBFirst */
-	xi.bitmap_unit = 32;		/* quant. of scanline 8, 16, 32 */
-	xi.bitmap_bit_order = MSBFirst;		/* LSBFirst, MSBFirst */
-	xi.bitmap_pad = 32;			/* 8, 16, 32 either XY or ZPixmap */
-	xi.depth = 32;			/* depth of image */
-	xi.bytes_per_line = 4 * WIDTH;		/* accelerator to next scanline */
-	xi.bits_per_pixel = 32;		/* bits per pixel (ZPixmap) */
+	xi.xoffset = 0;			// number of pixels offset in X direction
+	xi.format = ZPixmap;			// XYBitmap, XYPixmap, ZPixmap
+	xi.data = (char *) buff;			// pointer to image data
+	xi.byte_order = LSBFirst;			// data byte order, LSBFirst, MSBFirst
+	xi.bitmap_unit = 32;		// quant. of scanline 8, 16, 32
+	xi.bitmap_bit_order = MSBFirst;		/* LSBFirst, MSBFirst
+	xi.bitmap_pad = 32;			// 8, 16, 32 either XY or ZPixmap
+	xi.depth = 32;			//depth of image
+	xi.bytes_per_line = 4 * WIDTH;		// accelerator to next scanline
+	xi.bits_per_pixel = 32;		// bits per pixel (ZPixmap)
 	return xi;
 }
+*/
 #endif
