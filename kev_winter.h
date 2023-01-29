@@ -18,11 +18,18 @@ struct point_float
 typedef struct point_float point_float;
 */
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 struct kev_win{
 	int width;
 	int height;
 	char *title;
 	uint32_t *buffer;
+#ifdef _WIN32
+	HWND handle;
+#endif
 };
 
 typedef struct kev_win kev_win;
@@ -31,17 +38,11 @@ typedef struct kev_win kev_win;
 unsigned int rgb(unsigned char r, unsigned char g, unsigned char b);
 
 
-void poll_event();
+void poll_event(kev_win *win);
 void redraw();
-void init();
-
-#ifdef _WIN32
-#include <windows.h>
-
-HWND handle;
+void init(kev_win *win);
 
 
-#endif
 	
 #ifdef __linux__
 

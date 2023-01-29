@@ -2,22 +2,22 @@
 #include <stdlib.h>
 #include "kev_winter.h"
 
-#define WIDTH 320
-#define HEIGHT 240
-
-uint32_t buff[WIDTH * HEIGHT];
-
 #ifdef _WIN32
 #include <windows.h>
-const char class_name[] = "True and Living";
+const char class_name[] = "kev_winter";
+
 
 HDC hdc;
 BITMAPINFO buff_info;
-void reset_buffer_info();
+void reset_buffer_info(kev_win *win);
 LRESULT CALLBACK window_proc(HWND handle, UINT msg, WPARAM uint_param, LPARAM long_param);
 
-void init()
+
+
+void init(kev_win *win)
 {
+
+
 	WNDCLASSEX window_class; // = {0};
 	memset(&window_class, 0, sizeof(window_class));
 	HINSTANCE instance = GetModuleHandle(NULL);
@@ -33,12 +33,12 @@ void init()
 		exit(1); // or should it be zero? A quick look online suggests it's up to me
 	}
 
-	handle = CreateWindowEx(
+	HWND handle = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
 		class_name,
-		"Tyrian Purple",
+		win->title,
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, WIDTH, HEIGHT,
+		CW_USEDEFAULT, CW_USEDEFAULT, win->width, win->height,
 		NULL, NULL, instance, NULL);
 
 	if (handle == NULL)
@@ -46,13 +46,18 @@ void init()
 		MessageBox(NULL, "Window couldn't be created", "Error", MB_ICONEXCLAMATION | MB_OK);
 		exit(1);	
 	}
+
+	SetWindowLongPtr(handle, GWLP_USERDATA, (LONG_PTR)win);
+	win->handle = handle;
 	
 	ShowWindow(handle, SW_SHOW);
 	UpdateWindow(handle);
 	hdc = GetDC(handle);
-	reset_buffer_info();
+	reset_buffer_info(win);
+	redraw(win);
+
 }
-void poll_event()
+void poll_event(kev_win *win)
 {
 
 	MSG msg;
@@ -68,28 +73,32 @@ void poll_event()
 
 	
 }
-void reset_buffer_info()
+void reset_buffer_info(kev_win *win)
 {
 
 	buff_info.bmiHeader.biSize = sizeof(buff_info.bmiHeader);
-	buff_info.bmiHeader.biWidth = WIDTH;
-	buff_info.bmiHeader.biHeight = 0 - HEIGHT;
+	buff_info.bmiHeader.biWidth = win->width;
+	buff_info.bmiHeader.biHeight = 0 - win->height;
 	buff_info.bmiHeader.biPlanes = 1;
 	buff_info.bmiHeader.biBitCount = 32;
 	buff_info.bmiHeader.biCompression = BI_RGB;
 	buff_info.bmiHeader.biSizeImage = 0;
 	
 }
-void redraw()
+void redraw(kev_win *win)
 {
+	printf("Redrawering...\n");
+	printf("%d", win->buffer[0]);
+	StretchDIBits(hdc, 0, 0, win->width, win->height, 0, 0,win->width, win->height, win->buffer, &buff_info, DIB_RGB_COLORS, SRCCOPY);
 
-	StretchDIBits(hdc, 0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, buff, &buff_info, DIB_RGB_COLORS, SRCCOPY);
 
 }
 
 // pointer to either __int64 (64-bit) or long, __stdcall
 LRESULT CALLBACK window_proc(HWND handle, UINT msg, WPARAM uint_param, LPARAM long_param)
 {
+kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
+
 	switch(msg)
 	{
 	case WM_CLOSE:
@@ -104,9 +113,9 @@ LRESULT CALLBACK window_proc(HWND handle, UINT msg, WPARAM uint_param, LPARAM lo
 		PostQuitMessage(0);
 		}
 	break;
-	case WM_SIZE:
+	case WM_PAINT:
 		{
-			redraw();
+			//redraw(win);
 
 		}
 	break;
@@ -175,7 +184,7 @@ void close_x11()
 	XCloseDisplay(dis);
 	//exit(0);
 }
-void poll_event()
+void poll_event(kev_win *win)
 {
 	XEvent event;
 	if (XCheckWindowEvent(dis, win, event_mask, &event))
