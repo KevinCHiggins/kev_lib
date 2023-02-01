@@ -16,13 +16,13 @@ unsigned int rgb(unsigned char r, unsigned char g, unsigned char b)
 	return result;
 }
 
-void fill_buffer(uint32_t *buff)
+void fill_buffer(uint32_t *buff, int offset)
 {
 	for (int scanline = 0; scanline < HEIGHT; scanline++)
 	{
 		for (int pixel = 0; pixel < WIDTH; pixel += 1)
 		{
-			buff[scanline * WIDTH + pixel] = rgb(scanline, pixel, scanline * pixel);
+			buff[scanline * WIDTH + pixel] = rgb(scanline, pixel + offset, scanline * (pixel + offset));
 		}
 	}
 }
@@ -31,7 +31,7 @@ int run()
 
 {
 	uint32_t buff[WIDTH * HEIGHT];
-	fill_buffer(buff);
+
 	kev_win win = {
 	.width = WIDTH,
 	.height = HEIGHT,
@@ -42,10 +42,14 @@ int run()
 
 
 	init(&win);
+	int off = 0;
 
 	while (1)
 	{
+		off++;
+		fill_buffer(buff, off);
 		poll_event(&win);
+		sleep_for_framerate(&win);
 
 	}
 }
