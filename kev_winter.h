@@ -36,6 +36,7 @@ struct kev_win{
 	int height;
 	char *title;
 	uint32_t *buffer;
+	int64_t last_frame_ns;
 #ifdef _WIN32
 	HWND handle;
 #endif
@@ -57,5 +58,6 @@ unsigned int rgb(unsigned char r, unsigned char g, unsigned char b);
 void poll_event(kev_win *win);
 void redraw();
 void init(kev_win *win);
+void sleep_for_framerate(kev_win *win);
 
 #endif

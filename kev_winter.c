@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "kev_winter.h"
 
 #ifdef _WIN32
@@ -129,12 +130,26 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 
 #ifdef __linux__
 
-XImage set_ximage();
 void close_x11();
 
 Atom wm_delete;
 const long event_mask = StructureNotifyMask | ExposureMask | SubstructureNotifyMask;
 
+void sleep_for_framerate(kev_win *win)
+{
+	int64_t frame_time_ns = 1000000000 / 60;
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	int64_t left_in_frame_ns = frame_time_ns - ((ts.tv_sec * 1000000000 + ts.tv_nsec) - win->last_frame_ns);
+	if(left_in_frame_ns > 0)
+	{
+		ts.tv_sec = left_in_frame_ns / 1000000000;
+		ts.tv_nsec = left_in_frame_ns % 1000000000;
+		nanosleep(&ts, NULL);
+	}
+	timespec_get(&ts, TIME_UTC);
+	win->last_frame_ns = ts.tv_sec * 1000000000 + ts.tv_nsec;
+}
 
 void init(kev_win *win)
 {
@@ -198,6 +213,7 @@ void close_x11(kev_win *win)
 }
 void poll_event(kev_win *win)
 {
+	redraw(win);
 
 	XEvent event;
 	//printf("%ld", LastKnownRequestProcessed(dis));
@@ -210,7 +226,7 @@ void poll_event(kev_win *win)
 		//printf("Event %d\n", event.type);
 		if (event.type == Expose)
 		{
-			redraw(win);
+			
 		}
 	}
 	if (XCheckWindowEvent(win->dis, win->x_win, NoEventMask, &event)) printf("Erm");
@@ -257,23 +273,5 @@ void redraw(kev_win *win)
 	//XMapWindow(win->dis, win->x_win);
 	//XClearWindow(dis, win);
 }
-/*
-XImage set_ximage()
-{
-	XImage xi;
-	xi.width = WIDTH;
-	xi.height = HEIGHT;
-	xi.xoffset = 0;			// number of pixels offset in X direction
-	xi.format = ZPixmap;			// XYBitmap, XYPixmap, ZPixmap
-	xi.data = (char *) buff;			// pointer to image data
-	xi.byte_order = LSBFirst;			// data byte order, LSBFirst, MSBFirst
-	xi.bitmap_unit = 32;		// quant. of scanline 8, 16, 32
-	xi.bitmap_bit_order = MSBFirst;		/* LSBFirst, MSBFirst
-	xi.bitmap_pad = 32;			// 8, 16, 32 either XY or ZPixmap
-	xi.depth = 32;			//depth of image
-	xi.bytes_per_line = 4 * WIDTH;		// accelerator to next scanline
-	xi.bits_per_pixel = 32;		// bits per pixel (ZPixmap)
-	return xi;
-}
-*/
+
 #endif
