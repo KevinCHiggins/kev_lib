@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc -std=c11
 ifeq ($(OS),Windows_NT)
 	libs = -lcomctl32 -lgdi32 -lm -Wl,--subsystem,windows
 	targ = multi.exe
