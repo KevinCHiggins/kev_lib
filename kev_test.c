@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <setjmp.h>
 #include "kev_test.h"
 
@@ -12,6 +13,7 @@ size_t kev_test_report_buff_len = 2;
 char *kev_test_running_test;
 const char *kev_test_FAILED = "Test failed:\t";
 const char *kev_test_SUCCEEDED = "Test succeeded:\t";
+const float KEV_TEST_FLOAT_MARGIN = 0.00000006;
 int kev_test_tests_run;
 int kev_test_tests_passed;
 int kev_test_assertions_evaluated_in_this_test;
@@ -114,6 +116,20 @@ void kev_test_assert_int_equal(int i, int j)
         exit(1);
     }
     if (i != j)
+    {
+        longjmp(test_run, -1);
+    }
+    kev_test_assertions_evaluated_in_this_test++;
+}
+
+void kev_test_assert_float_equal(float i, float j)
+{
+    if (!kev_test_running_test)
+    {
+        printf("Assertions can only be made while a test is running. Exiting.\n");
+        exit(1);
+    }
+    if (fabs(i - j) > KEV_TEST_FLOAT_MARGIN)
     {
         longjmp(test_run, -1);
     }
