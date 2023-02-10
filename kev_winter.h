@@ -39,6 +39,7 @@ struct kev_win{
 	int64_t last_frame_ns;
 #ifdef _WIN32
 	HWND handle;
+	LARGE_INTEGER performance_freq;
 #endif
 #ifdef __linux__
 
