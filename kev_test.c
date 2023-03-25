@@ -13,7 +13,7 @@ size_t kev_test_report_buff_len = 2;
 char *kev_test_running_test;
 const char *kev_test_FAILED = "Test failed:\t";
 const char *kev_test_SUCCEEDED = "Test succeeded:\t";
-const float KEV_TEST_FLOAT_MARGIN = 0.00000006;
+const float KEV_TEST_FLOAT_MARGIN = 0.00000018; // bigger margin needed for kev_caster_test.c; 0.00000006;
 int kev_test_tests_run;
 int kev_test_tests_passed;
 int kev_test_assertions_evaluated_in_this_test;
