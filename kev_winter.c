@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 199309L
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -181,7 +182,7 @@ void sleep_for_framerate(kev_win *win)
 {
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
-	current_ns = ts.tv_sec * 1000000000 + ts.tv_nsec;
+	float current_ns = ts.tv_sec * 1000000000 + ts.tv_nsec;
 	int64_t left_in_frame_ns = FRAME_TIME_NS - ((ts.tv_sec * 1000000000 + ts.tv_nsec) - win->last_frame_ns);
 	if(left_in_frame_ns > 0)
 	{
