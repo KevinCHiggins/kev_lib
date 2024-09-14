@@ -3,6 +3,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <stdio.h>
 int64_t performance_freq;
 LARGE_INTEGER count;
 void kev_perf_init()
@@ -10,29 +11,32 @@ void kev_perf_init()
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 	performance_freq = freq.QuadPart;
+	char output[20];
+	snprintf(output, 20, "%ld", performance_freq);
+	puts(output);
 }
 int64_t kev_perf_time_since_last_call_ns(kev_perf_timing *timing)
 {
-	if (timing->calls_amount == 0) return 0.0;
 	timing->calls_amount += 1;
 	QueryPerformanceCounter(&count);
 	int64_t current_ns = count.QuadPart * 1000000000 / performance_freq;
 	int64_t delta_ns = current_ns - timing->last_timestamp_ns;
 	timing->last_timestamp_ns = current_ns;
 	timing->total_time_s += delta_ns / 1000000000.0;
+	if (timing->calls_amount == 1) return 0.0;
 	return delta_ns;
 }
 
 #endif
 #ifdef __linux__
 
+struct timespec ts;
 void kev_perf_init()
 {
 }
 int64_t kev_perf_time_since_last_call_ns(kev_perf_timing *timing)
 {
 	timing->calls_amount += 1;
-	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
 	float current_ns = ts.tv_nsec; // leaves small chance delta measurement will straddle second boundary
 	int64_t delta_ns = current_ns - timing->last_timestamp_ns;
