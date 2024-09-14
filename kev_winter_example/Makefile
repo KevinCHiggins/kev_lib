@@ -7,8 +7,11 @@ else
 	targ = multi
 endif
 
-kev_winter_example: kev_winter_example.c ../kev_winter.o
-	$(CC) ../kev_winter.o kev_winter_example.c -I "../" -o kev_winter_example $(libs)
+kev_winter_example: kev_winter_example.c ../kev_winter.o ../kev_perf_timer.o
+	$(CC) ../kev_winter.o ../kev_perf_timer.o kev_winter_example.c -I "../" -o kev_winter_example $(libs)
 
 ../kev_winter.o: ../kev_winter.c ../kev_winter.h
 	$(CC) ../kev_winter.c -c -o ../kev_winter.o
+
+../kev_perf_timer.o: ../kev_perf_timer.c ../kev_perf_timer.h
+	$(CC) ../kev_perf_timer.c -c -o ../kev_perf_timer.o

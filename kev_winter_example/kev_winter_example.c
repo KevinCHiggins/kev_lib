@@ -1,9 +1,17 @@
+#define _POSIX_C_SOURCE 199309L
 #include <stdio.h>
 #include <stdlib.h>
 #include "kev_winter.h"
+#include "kev_perf_timer.h"
 
 #define WIDTH 320
 #define HEIGHT 240
+
+void sleep_approx_ns(int64_t target_time_ns);
+
+#define FRAME_RATE 60
+#define FRAME_TIME_NS (1000000000 / FRAME_RATE)
+kev_perf_timing timing;
 
 char title[] = "kev_winter Example";
 
@@ -27,6 +35,19 @@ void fill_buffer(uint32_t *buff, int offset)
 	}
 }
 
+
+int64_t regulate_frame_time(int64_t target_time_ns)
+{
+	int64_t processing_time_ns = kev_perf_time_since_last_call_ns(&timing);
+	int64_t leftover_ns = FRAME_TIME_NS - processing_time_ns;
+	if (leftover_ns > 0)
+	{
+		sleep_approx_ns(leftover_ns);
+	}
+	int64_t sleeping_time_ns = kev_perf_time_since_last_call_ns(&timing);
+	return processing_time_ns + sleeping_time_ns; // 
+}
+
 int run()
 
 {
@@ -42,6 +63,7 @@ int run()
 
 
 	init(&win);
+	memset(&timing, 0, sizeof(kev_perf_timing));
 	int off = 0;
 
 	while (1)
@@ -49,12 +71,17 @@ int run()
 		off++;
 		fill_buffer(buff, off);
 		poll_event(&win);
-		sleep_for_framerate(&win);
+		regulate_frame_time(FRAME_TIME_NS);
 
 	}
 }
 
 #ifdef _WIN32
+
+void sleep_approx_ns(int64_t ns)
+{
+	sleep(ns / 1000000);
+}
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)
 {
@@ -75,6 +102,14 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, 
 #endif
 
 #ifdef __linux__
+
+void sleep_approx_ns(int64_t ns)
+{
+	struct timespec requested, remaining;
+	requested.tv_sec = 0;
+	requested.tv_nsec = ns;
+	nanosleep(&requested, &remaining); // not currently handling errors and retries
+}
 
 
 int main()

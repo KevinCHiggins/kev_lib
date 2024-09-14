@@ -4,13 +4,9 @@
 #include <time.h>
 #include "kev_winter.h"
 
-//refactor to store in kev_win... and ideally should be set as a FPS value not ns
-int64_t FRAME_TIME_NS = 1000000000 / 60;
-
 #ifdef _WIN32
 #include <windows.h>
 const char class_name[] = "kev_winter";
-int64_t performance_freq;
 
 HDC hdc;
 BITMAPINFO buff_info;
@@ -18,26 +14,7 @@ int64_t get_tick_in_ns();
 void reset_buffer_info(kev_win *win);
 LRESULT CALLBACK window_proc(HWND handle, UINT msg, WPARAM uint_param, LPARAM long_param);
 
-void sleep_for_framerate(kev_win *win)
-{
-	
-	int64_t current_ns = get_tick_in_ns();
 
-	int64_t left_in_frame_ns = FRAME_TIME_NS - (current_ns - win->last_frame_ns);
-	if(left_in_frame_ns > 0)
-	{
-		Sleep(left_in_frame_ns / 1000000);
-	}
-	
-	win->last_frame_ns = get_tick_in_ns();
-}
-
-int64_t get_tick_in_ns()
-{
-	LARGE_INTEGER count;
-	QueryPerformanceCounter(&count);
-	return count.QuadPart * 1000000000 / performance_freq;
-}
 void init(kev_win *win)
 {
 
@@ -77,11 +54,6 @@ void init(kev_win *win)
 	ShowWindow(handle, SW_SHOW);
 	UpdateWindow(handle);
 	hdc = GetDC(handle);
-
-	//only needs to be done once and could go in an engine initialisation function
-	LARGE_INTEGER freq;
-	QueryPerformanceFrequency(&freq);
-	performance_freq = freq.QuadPart;
 
 	reset_buffer_info(win);
 	redraw(win);
@@ -172,27 +144,10 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 #ifdef __linux__
 
 void close_x11();
-void sleep_for_framerate(kev_win *win);
 
 Atom wm_delete;
 const long event_mask = StructureNotifyMask | ExposureMask | SubstructureNotifyMask;
 
-
-void sleep_for_framerate(kev_win *win)
-{
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
-	float current_ns = ts.tv_sec * 1000000000 + ts.tv_nsec;
-	int64_t left_in_frame_ns = FRAME_TIME_NS - ((ts.tv_sec * 1000000000 + ts.tv_nsec) - win->last_frame_ns);
-	if(left_in_frame_ns > 0)
-	{
-		ts.tv_sec = left_in_frame_ns / 1000000000;
-		ts.tv_nsec = left_in_frame_ns % 1000000000;
-		nanosleep(&ts, NULL);
-	}
-	timespec_get(&ts, TIME_UTC);
-	win->last_frame_ns = ts.tv_sec * 1000000000 + ts.tv_nsec;
-}
 
 void init(kev_win *win)
 {
