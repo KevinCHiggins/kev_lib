@@ -45,7 +45,7 @@ int64_t regulate_frame_time(int64_t target_time_ns)
 		sleep_approx_ns(leftover_ns);
 	}
 	int64_t sleeping_time_ns = kev_perf_time_since_last_call_ns(&timing);
-	return processing_time_ns + sleeping_time_ns; // 
+	return processing_time_ns + sleeping_time_ns;
 }
 
 int run()
@@ -61,8 +61,8 @@ int run()
 	};
 
 
-
-	init(&win);
+	kev_perf_init();
+	kev_win_init(&win);
 	memset(&timing, 0, sizeof(kev_perf_timing));
 	int off = 0;
 
@@ -70,17 +70,18 @@ int run()
 	{
 		off++;
 		fill_buffer(buff, off);
-		poll_event(&win);
-		regulate_frame_time(FRAME_TIME_NS);
+		kev_win_poll_event(&win);
+		int64_t frame_time = regulate_frame_time(FRAME_TIME_NS);
 
 	}
 }
 
 #ifdef _WIN32
+#include <windows.h>
 
 void sleep_approx_ns(int64_t ns)
 {
-	sleep(ns / 1000000);
+	Sleep(ns / 1000000);
 }
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)

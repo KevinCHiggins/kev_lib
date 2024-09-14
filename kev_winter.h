@@ -56,9 +56,7 @@ typedef struct kev_win kev_win;
 
 unsigned int rgb(unsigned char r, unsigned char g, unsigned char b);
 
-void poll_event(kev_win *win);
-void redraw();
-void init(kev_win *win);
-void sleep_for_framerate(kev_win *win);
+void kev_win_poll_event(kev_win *win);
+void kev_win_init(kev_win *win);
 
 #endif

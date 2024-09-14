@@ -12,10 +12,11 @@ HDC hdc;
 BITMAPINFO buff_info;
 int64_t get_tick_in_ns();
 void reset_buffer_info(kev_win *win);
+void redraw(kev_win *win);
 LRESULT CALLBACK window_proc(HWND handle, UINT msg, WPARAM uint_param, LPARAM long_param);
 
 
-void init(kev_win *win)
+void kev_win_init(kev_win *win)
 {
 
 
@@ -59,7 +60,7 @@ void init(kev_win *win)
 	redraw(win);
 
 }
-void poll_event(kev_win *win)
+void kev_win_poll_event(kev_win *win)
 {
 
 	MSG msg;
@@ -209,7 +210,7 @@ void close_x11(kev_win *win)
 	XCloseDisplay(win->dis);
 	//exit(0);
 }
-void poll_event(kev_win *win)
+void kev_win_poll_event(kev_win *win)
 {
 	redraw(win);
 
