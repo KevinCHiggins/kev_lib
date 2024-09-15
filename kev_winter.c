@@ -159,12 +159,13 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 #ifdef __linux__
 
 void close_x11();
+void redraw();
 
 Atom wm_delete;
 const long event_mask = StructureNotifyMask | ExposureMask | SubstructureNotifyMask;
 
 
-void init(kev_win *win)
+void kev_win_init(kev_win *win)
 {
 
 	win->dis = XOpenDisplay((char *)0);

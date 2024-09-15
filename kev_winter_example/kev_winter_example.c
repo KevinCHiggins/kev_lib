@@ -5,12 +5,12 @@
 #include "kev_perf_timer.h"
 #include "kev_render.h"
 
-#define WIDTH 320
-#define HEIGHT 240
+#define WIDTH 800
+#define HEIGHT 600
 
 void sleep_approx_ns(int64_t target_time_ns);
 
-#define FRAME_RATE 60
+#define FRAME_RATE 200
 #define FRAME_TIME_NS (1000000000 / FRAME_RATE)
 kev_perf_timing timing;
 
@@ -53,7 +53,7 @@ int run()
 	kev_win_init(&win);
 	memset(&timing, 0, sizeof(kev_perf_timing));
 	int off = 0;
-
+	int64_t frame_time;
 	while (1)
 	{
 		off++;
@@ -68,8 +68,22 @@ int run()
 		kev_render_vert_line(render_buffer, 20, 180, 239);
 
 		kev_render_vert_line(render_buffer, 22, 180, 238);
+
+		kev_render_digit(render_buffer, 100, 100, 20, 40, '0');
+		kev_render_digit(render_buffer, 120, 100, 20, 40, '1');
+		kev_render_digit(render_buffer, 140, 100, 20, 40, '2');
+		kev_render_digit(render_buffer, 160, 100, 20, 40, '3');
+		kev_render_digit(render_buffer, 180, 100, 20, 40, '4');
+		kev_render_digit(render_buffer, 200, 100, 20, 40, '5');
+		kev_render_digit(render_buffer, 220, 100, 20, 40, '6');
+		kev_render_digit(render_buffer, 240, 100, 20, 40, '7');
+		kev_render_digit(render_buffer, 260, 100, 20, 40, '8');
+		kev_render_digit(render_buffer, 280, 100, 20, 40, '9');
+		kev_render_int(render_buffer, 120, 140, 20, 40, 1234567890);
+		kev_render_int(render_buffer, 120, 180, 20, 40, (int)(1.0 / (frame_time / 1000000000.0)));
 		kev_win_poll_event(&win);
-		int64_t frame_time = regulate_frame_time(FRAME_TIME_NS);
+		frame_time = regulate_frame_time(FRAME_TIME_NS);
+
 
 	}
 }
