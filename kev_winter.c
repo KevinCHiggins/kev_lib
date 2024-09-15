@@ -35,12 +35,26 @@ void kev_win_init(kev_win *win)
 		exit(1); // or should it be zero? A quick look online suggests it's up to me
 	}
 
+	int top = 100;
+	int left = 100;
+	RECT rect;
+	rect.left   = left;
+	rect.top    = top;
+	rect.right  = left + win->width;
+	rect.bottom = top + win->height;
+
+	UINT style = WS_OVERLAPPEDWINDOW;
+
+	AdjustWindowRectEx(&rect, style, 0, 0);
+	rect.right += 3; // to show the full client area on Win10
+	rect.bottom += 3; // to show the full client area on Win10
+
 	HWND handle = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
 		class_name,
 		win->title,
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, win->width, win->height,
+		rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top,
 		NULL, NULL, instance, NULL);
 
 	if (handle == NULL)

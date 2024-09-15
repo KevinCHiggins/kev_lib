@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "kev_winter.h"
 #include "kev_perf_timer.h"
+#include "kev_render.h"
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -14,26 +15,6 @@ void sleep_approx_ns(int64_t target_time_ns);
 kev_perf_timing timing;
 
 char title[] = "kev_winter Example";
-
-unsigned int rgb(unsigned char r, unsigned char g, unsigned char b)
-{
-	unsigned int result = 0;
-	result += r << 16;
-	result += g << 8;
-	result += b;
-	return result;
-}
-
-void fill_buffer(uint32_t *buff, int offset)
-{
-	for (int scanline = 0; scanline < HEIGHT; scanline++)
-	{
-		for (int pixel = 0; pixel < WIDTH; pixel += 1)
-		{
-			buff[scanline * WIDTH + pixel] = rgb(scanline, pixel + offset, scanline * (pixel + offset));
-		}
-	}
-}
 
 
 int64_t regulate_frame_time(int64_t target_time_ns)
@@ -60,6 +41,13 @@ int run()
 	.buffer = buff
 	};
 
+	kev_render_buffer render_buffer = {
+		.width = WIDTH,
+		.height = HEIGHT,
+		.bpp = 32,
+		.buffer = buff
+	};
+
 
 	kev_perf_init();
 	kev_win_init(&win);
@@ -69,7 +57,17 @@ int run()
 	while (1)
 	{
 		off++;
-		fill_buffer(buff, off);
+		kev_render_test_pattern(render_buffer, off);
+		kev_render_horiz_line(render_buffer, 12, 24, 30);
+		kev_render_vert_line(render_buffer, 20, -1,19);
+		kev_render_horiz_line(render_buffer, 315, 320, 18);
+		kev_render_horiz_line(render_buffer, 315, 319, 20);
+		kev_render_horiz_line(render_buffer, 315, 318, 22);
+		kev_render_vert_line(render_buffer, 18, 180, 240);
+
+		kev_render_vert_line(render_buffer, 20, 180, 239);
+
+		kev_render_vert_line(render_buffer, 22, 180, 238);
 		kev_win_poll_event(&win);
 		int64_t frame_time = regulate_frame_time(FRAME_TIME_NS);
 

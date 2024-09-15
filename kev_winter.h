@@ -31,7 +31,7 @@ typedef struct point_float point_float;
 
 #endif
 
-struct kev_win{
+typedef struct kev_win{
 	int width;
 	int height;
 	char *title;
@@ -50,9 +50,7 @@ struct kev_win{
 	XImage *buff_ximage;
 
 #endif
-};
-
-typedef struct kev_win kev_win;
+} kev_win;
 
 unsigned int rgb(unsigned char r, unsigned char g, unsigned char b);
 
