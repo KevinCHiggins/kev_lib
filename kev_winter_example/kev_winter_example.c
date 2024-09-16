@@ -5,8 +5,8 @@
 #include "kev_perf_timer.h"
 #include "kev_render.h"
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 320
+#define HEIGHT 240
 
 void sleep_approx_ns(int64_t target_time_ns);
 
@@ -33,6 +33,7 @@ int run()
 
 {
 	uint32_t buff[WIDTH * HEIGHT];
+	memset(&buff, 0, WIDTH * HEIGHT * sizeof(uint32_t));
 
 	kev_win win = {
 	.width = WIDTH,
@@ -57,7 +58,8 @@ int run()
 	while (1)
 	{
 		off++;
-		kev_render_test_pattern(render_buffer, off);
+		kev_render_horiz_line(render_buffer, 100, 120, 0);
+		//kev_render_test_pattern(render_buffer, off);
 		kev_render_horiz_line(render_buffer, 12, 24, 30);
 		kev_render_vert_line(render_buffer, 20, -1,19);
 		kev_render_horiz_line(render_buffer, 315, 320, 18);
