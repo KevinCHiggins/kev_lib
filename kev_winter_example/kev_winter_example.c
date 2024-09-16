@@ -10,7 +10,7 @@
 
 void sleep_approx_ns(int64_t target_time_ns);
 
-#define FRAME_RATE 200
+#define FRAME_RATE 60
 #define FRAME_TIME_NS (1000000000 / FRAME_RATE)
 kev_perf_timing timing;
 
@@ -98,12 +98,12 @@ void sleep_approx_ns(int64_t ns)
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)
 {
-	FILE* fp;
+	//FILE* fp;
 
-	AllocConsole();
-	freopen_s(&fp, "CONIN$", "r", stdin);
-	freopen_s(&fp, "CONOUT$", "w", stdout);
-	freopen_s(&fp, "CONOUT$", "w", stderr);
+	//AllocConsole();
+	//freopen_s(&fp, "CONIN$", "r", stdin);
+	//freopen_s(&fp, "CONOUT$", "w", stdout);
+	//freopen_s(&fp, "CONOUT$", "w", stderr);
 	return run();
 
 
