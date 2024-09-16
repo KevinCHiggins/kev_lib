@@ -193,6 +193,13 @@ void kev_render_int(kev_render_buffer buff, int x, int y, int digit_width, int d
     }
 }
 
+void kev_render_rectangle(kev_render_buffer buff, int x1, int y1, int x2, int y2)
+{
+    kev_render_horiz_line(buff, x1, x2, y1);
+    kev_render_vert_line(buff, x2, y1, y2);
+    kev_render_horiz_line(buff, x2, x1, y2);
+    kev_render_vert_line(buff, x1, y2, y1);
+}
 void kev_render_digit(kev_render_buffer buff, int x, int y, int width, int height, char digit)
 {
     // to avoid wasting pixels at bottom and right we position lines sub-pixel (float arithmetic) then round
