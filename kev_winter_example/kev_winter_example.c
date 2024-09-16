@@ -29,8 +29,21 @@ int64_t regulate_frame_time(int64_t target_time_ns)
 	return processing_time_ns + sleeping_time_ns;
 }
 
-int run()
+void spinning_diamond(kev_render_buffer buff, int offset, int size)
+{
+	float smaller = 0.78539816339 + offset / 100.0;
+	int orig_x = 100;
+	int orig_y = 30;
+	int s = sin(smaller) * size;
+	int c = cos(smaller) * size;
+	//kev_render_line(buff, orig_x + sin(smaller) * 100, orig_y + cos(smaller) * 100, orig_x + cos(smaller) * 100, orig_y - cos(smaller) * 100);
 
+	kev_render_line(buff, orig_x + s, orig_y + c, orig_x + c, orig_y - s);
+	kev_render_line(buff, orig_x + c, orig_y - s, orig_x - s, orig_y - c);
+	kev_render_line(buff, orig_x - s, orig_y - c, orig_x - c, orig_y + s);
+	kev_render_line(buff, orig_x - c, orig_y + s, orig_x + s, orig_y + c);
+}
+int run()
 {
 	uint32_t buff[WIDTH * HEIGHT];
 	memset(&buff, 0, WIDTH * HEIGHT * sizeof(uint32_t));
@@ -57,9 +70,12 @@ int run()
 	int64_t frame_time;
 	while (1)
 	{
+		//kev_render_vert_line(render_buffer, 20, -1,19);
+		kev_render_test_pattern(render_buffer, off);
 		off++;
+		/*
 		kev_render_horiz_line(render_buffer, 100, 120, 0);
-		//kev_render_test_pattern(render_buffer, off);
+		kev_render_test_pattern(render_buffer, off);
 		kev_render_horiz_line(render_buffer, 12, 24, 30);
 		kev_render_vert_line(render_buffer, 20, -1,19);
 		kev_render_horiz_line(render_buffer, 315, 320, 18);
@@ -83,9 +99,14 @@ int run()
 		kev_render_digit(render_buffer, 280, 100, 20, 40, '9');
 		kev_render_int(render_buffer, 120, 140, 20, 40, 1234567890);
 		kev_render_int(render_buffer, 120, 180, 20, 40, (int)(1.0 / (frame_time / 1000000000.0)));
+		kev_render_line(render_buffer, 210, 190, 230, 195);
+		kev_render_line(render_buffer, 230, 195, 250, 190);
+		kev_render_line(render_buffer, 40, 300, 50, 200);
+		kev_render_line(render_buffer, 50, 200, 60, 300);
+		*/
+		spinning_diamond(render_buffer, off, 100);
 		kev_win_poll_event(&win);
 		frame_time = regulate_frame_time(FRAME_TIME_NS);
-
 
 	}
 }

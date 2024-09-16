@@ -1,6 +1,12 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <stdio.h>
 #include "kev_render.h"
+
+void kev_render_line_low_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2);
+void kev_render_line_high_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2);
 
 unsigned int rgb(unsigned char r, unsigned char g, unsigned char b)
 {
@@ -45,7 +51,7 @@ void kev_render_horiz_line(kev_render_buffer buff, int x1, int x2, int y)
     if (x1 < 0) x1 = 0;
     if (x2 >= buff.width) x2 = buff.width - 1;
     int row_start_in_buff = y * buff.width;
-    for (int x = x1; x < x2; x++)
+    for (int x = x1; x <= x2; x++)
     {
         buff.buffer[row_start_in_buff + x] = rgb(255, 255, 255);
     }
@@ -65,12 +71,115 @@ void kev_render_vert_line(kev_render_buffer buff, int x, int y1, int y2)
     if (x >= buff.width) return;
     if (y1 < 0) y1 = 0;
     if (y2 >= buff.height) y2 = buff.height - 1;
-    for (int y = y1; y < y2; y++)
+    for (int y = y1; y <= y2; y++)
     {
         int row_start_in_buff = y * buff.width;
         buff.buffer[row_start_in_buff + x] = rgb(255, 255, 255);
     }
 }
+
+
+void kev_render_line(kev_render_buffer buff, int x1, int y1, int x2, int y2)
+{
+
+    if (y2 == y1) kev_render_horiz_line(buff, x1, x2, y1);
+    if (x2 == x1) kev_render_vert_line(buff, x1, y1, y2);
+    if (abs(y2 - y1) < (abs(x2 - x1)))
+    {
+        if (x1 < x2)
+        {
+            kev_render_line_low_slope(buff, x1, y1, x2, y2);
+        }
+        else
+        {
+            kev_render_line_low_slope(buff, x2, y2, x1, y1);
+        }
+    }
+    else
+    {
+        if (y1 < y2)
+        {
+            kev_render_line_high_slope(buff, x1, y1, x2, y2);
+        }
+        else
+        {
+            kev_render_line_high_slope(buff, x2, y2, x1, y1);
+        }
+    }
+}
+
+void kev_render_line_low_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2)
+{
+
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int y_inc = 1;
+    if (dy < 0)
+    {
+        y_inc = -1;
+        dy = 0 - dy;
+    }
+    int diff = (2 * dy) - dx;
+    int last_drawn_x = x1;
+    int x = x1;
+    for (; x <= x2; x++)
+    {
+        if (diff > 0)
+        {
+            //printf("dx %d dy %d diff %d last_drawn %d to %d\n", dx, dy, diff, last_drawn_x, x);
+            kev_render_horiz_line(buff, last_drawn_x, x, y1);
+            last_drawn_x = x;
+            y1 += y_inc;
+            diff += (2 * (dy - dx));
+            //printf("diff %d\n", diff);
+        }
+        else
+        {
+            diff += (2 * dy);
+        }
+    }
+    if (x > last_drawn_x)
+    {
+        kev_render_horiz_line(buff, last_drawn_x, x, y1);
+    }
+}
+
+void kev_render_line_high_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2)
+{
+
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int x_inc = 1;
+    if (dx < 0)
+    {
+        x_inc = -1;
+        dx = 0 - dx;
+    }
+    int diff = (2 * dx) - dy;
+    int last_drawn_y = y1;
+    int y = y1;
+    for (; y <= y2; y++)
+    {
+        if (diff > 0)
+        {
+            //printf("dx %d dy %d diff %d last_drawn %d to %d\n", dx, dy, diff, last_drawn_y, y);
+            kev_render_vert_line(buff, x1, last_drawn_y, y);
+            last_drawn_y = y;
+            x1 += x_inc;
+            diff += (2 * (dx - dy));
+            //printf("diff %d\n", diff);
+        }
+        else
+        {
+            diff += (2 * dx);
+        }
+    }
+    if (y > last_drawn_y)
+    {
+        kev_render_vert_line(buff, x1, last_drawn_y, y);
+    }
+}
+
 
 void kev_render_int(kev_render_buffer buff, int x, int y, int digit_width, int digit_height, int number)
 {
