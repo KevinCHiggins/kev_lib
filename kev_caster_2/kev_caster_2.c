@@ -5,8 +5,8 @@
 #include "kev_perf_timer.h"
 #include "kev_render.h"
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 1024
+#define HEIGHT 768
 
 #define ARENA_WIDTH 8
 #define ARENA_HEIGHT 8
@@ -49,7 +49,7 @@ double degrees_to_rads(double degrees)
 	return degrees / 180.0 * M_PI;
 }
 
-double fov;
+double fov_rads;
 
 void update_player()
 {
@@ -126,7 +126,8 @@ void fill_slice_heights()
 {
 	for (int i = 0; i < WIDTH; i++)
 	{
-		slice_heights[i] = (HEIGHT / 2) / (dist_to_wall(player_rads + ray_rads[i], player_x, player_y));
+		double dist = dist_to_wall(player_rads + ray_rads[i], player_x, player_y);
+		slice_heights[i] = (HEIGHT / 2) / (dist * cos(0 - ray_rads[i]));
 	}
 }
 
@@ -144,13 +145,13 @@ int64_t regulate_frame_time(int64_t target_time_ns)
 
 void init()
 {
-	fov = degrees_to_rads(90.0);
-	double fov_left_tan = tan(fov / 2);
-	double step = (fov_left_tan * 2) / WIDTH;
+	fov_rads = degrees_to_rads(60.0);
+	double step_rads = fov_rads / WIDTH;
+	double ang_rads = fov_rads / 2;
 	for (int i = 0; i < WIDTH; i++)
 	{
-		ray_rads[i] = atan(fov_left_tan);
-		fov_left_tan -= step;
+		ray_rads[i] = ang_rads;
+		ang_rads -= step_rads;
 	}
 	printf("%f", ray_rads[319]);
 }
