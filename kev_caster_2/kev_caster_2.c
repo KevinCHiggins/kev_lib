@@ -5,8 +5,8 @@
 #include "kev_perf_timer.h"
 #include "kev_render.h"
 
-#define WIDTH 320
-#define HEIGHT 240
+#define WIDTH 640
+#define HEIGHT 480
 
 #define ARENA_WIDTH 8
 #define ARENA_HEIGHT 8
@@ -38,7 +38,7 @@ int walls[ARENA_WIDTH][ARENA_WIDTH] = {
 };
 float player_x = 4.5;
 float player_y = 4.5;
-double player_rads = 0.0;
+double player_rads = 5.0;
 double two_pi = M_PI * 2;
 double rads_to_degrees(double rads)
 {
@@ -53,13 +53,82 @@ double fov;
 
 void update_player()
 {
-	player_rads += 0.001;
+	player_rads += 0.008;
 	while (player_rads >= two_pi)
 	{
 		player_rads -= two_pi;
 	}
 }
 
+int is_wall(int x, int y)
+{
+	return walls[y][x];
+}
+
+double dist_to_wall(double ang, double player_x, double player_y)
+{
+	int player_x_floor = (int)floor(player_x);
+	int player_y_floor = (int)floor(player_y);
+	double ns_crossing_dist = fabs(1 / cos(ang));
+	double we_crossing_dist = fabs(1 / sin(ang));
+	double ray_dist_to_ns, ray_dist_to_we;
+	int x_crossed = 0;
+	int y_crossed = 0;
+	int x_inc;
+	int y_inc;
+	if (ang < M_PI / 2)
+	{
+		ray_dist_to_ns = ns_crossing_dist * (1 - (fmod(player_x, 1.0)));
+		ray_dist_to_we = we_crossing_dist * (fmod(player_y, 1.0));
+		x_inc = 1;
+		y_inc = -1;
+	}
+	else if (ang < M_PI)
+	{
+		ray_dist_to_ns = ns_crossing_dist * (fmod(player_x, 1.0));
+		ray_dist_to_we = we_crossing_dist * (fmod(player_y, 1.0));
+		x_inc = -1;
+		y_inc = -1;
+	}
+	else if (ang < M_PI * 1.5)
+	{
+		ray_dist_to_ns = ns_crossing_dist * (fmod(player_x, 1.0));
+		ray_dist_to_we = we_crossing_dist * (1 - (fmod(player_y, 1.0)));
+		x_inc = -1;
+		y_inc = 1;
+	}
+	else
+	{
+		ray_dist_to_ns = ns_crossing_dist * (1 - (fmod(player_x, 1.0)));
+		ray_dist_to_we = we_crossing_dist * (1 - (fmod(player_y, 1.0)));
+		x_inc = 1;
+		y_inc = 1;
+	}
+
+	while (1)
+	{
+		if (ray_dist_to_ns > ray_dist_to_we)
+		{
+			y_crossed += y_inc;
+			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed)) return ray_dist_to_we;
+			ray_dist_to_we += we_crossing_dist;
+		}
+		else
+		{
+			x_crossed += x_inc;
+			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed)) return ray_dist_to_ns;
+			ray_dist_to_ns += ns_crossing_dist;
+		}
+	}
+}
+
+void fill_slice_heights()
+{
+	for (int i = 0; i < WIDTH; i++)
+	{
+		slice_heights[i] = (HEIGHT / 2) / (dist_to_wall(player_rads + ray_rads[i], player_x, player_y));
+	}
+}
 
 int64_t regulate_frame_time(int64_t target_time_ns)
 {
@@ -75,12 +144,11 @@ int64_t regulate_frame_time(int64_t target_time_ns)
 
 void init()
 {
-	fov = degrees_to_rads(60.0);
+	fov = degrees_to_rads(90.0);
 	double fov_left_tan = tan(fov / 2);
 	double step = (fov_left_tan * 2) / WIDTH;
 	for (int i = 0; i < WIDTH; i++)
 	{
-		slice_heights[i] = i;
 		ray_rads[i] = atan(fov_left_tan);
 		fov_left_tan -= step;
 	}
@@ -112,17 +180,23 @@ int run()
 	memset(&timing, 0, sizeof(kev_perf_timing));
 	int off = 0;
 	int64_t frame_time;
+	unsigned int blueish = kev_render_rgb(30, 70, 150);
+	unsigned int reddish = kev_render_rgb(160, 50, 10);
+	unsigned int white = kev_render_rgb(199, 199, 199);
 	while (1)
 	{
-		/*
-		int horizon_y = HEIGHT / 2;
-		for (int i = 0; i < WIDTH; i++)
-		{
-			kev_render_vert_line(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i]);
-		}
-		*/
+		
 		update_player();
 		memset(&buff, 0, WIDTH * HEIGHT * sizeof(uint32_t));
+		fill_slice_heights();
+		int horizon_y = HEIGHT / 2;
+
+		for (int i = 0; i < WIDTH; i++)
+		{
+			kev_render_vert_line(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], blueish);
+		}
+		
+
 		int grid_size_x = HEIGHT / ARENA_HEIGHT;
 		int grid_size_y = HEIGHT / ARENA_HEIGHT;
 		for (int arena_y = 0; arena_y < ARENA_HEIGHT; arena_y++)
@@ -131,7 +205,7 @@ int run()
 			{
 				if (walls[arena_y][arena_x])
 				{
-					kev_render_rectangle(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, (arena_x + 1) * grid_size_x, (arena_y + 1) * grid_size_y);
+					kev_render_rectangle(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, (arena_x + 1) * grid_size_x, (arena_y + 1) * grid_size_y, white);
 				}
 			}
 		}
@@ -142,9 +216,9 @@ int run()
 		double right_x = player_x + cos(ang_to_right);
 		double right_y = player_y + 0 - sin(ang_to_right);
 
-		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, left_x * grid_size_x, left_y * grid_size_y);
-		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y);
-		kev_render_line(render_buffer, left_x * grid_size_x, left_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y);
+		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, left_x * grid_size_x, left_y * grid_size_y, reddish);
+		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, reddish);
+		kev_render_line(render_buffer, left_x * grid_size_x, left_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, reddish);
 		kev_win_poll_event(&win);
 		frame_time = regulate_frame_time(FRAME_TIME_NS);
 
