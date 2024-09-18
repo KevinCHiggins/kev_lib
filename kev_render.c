@@ -177,6 +177,10 @@ void kev_render_line(kev_render_buffer buff, int x1, int y1, int x2, int y2, uns
     }
 }
 
+void kev_render_point(kev_render_buffer buff, int x, int y, unsigned int rgb)
+{
+    buff.buffer[y * buff.width + x] = rgb;
+}
 
 void kev_render_int(kev_render_buffer buff, int x, int y, int digit_width, int digit_height, int number, unsigned int rgb)
 {
