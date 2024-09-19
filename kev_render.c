@@ -78,74 +78,54 @@ void kev_render_vert_line(kev_render_buffer buff, int x, int y1, int y2, unsigne
 
 void kev_render_line_low_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
 {
-    puts("hello");
+    printf("hello x1 %d, y1 %d, x2 %d, y2 %d\n", x1, y1, x2, y2);
     int dx = x2 - x1;
     int dy = y2 - y1;
-    int y_inc = 1;
-    if (dy < 0)
-    {
-        y_inc = -1;
-        dy = 0 - dy;
-    }
-    int diff = (2 * dy) - dx;
+    int y_inc;
     int last_drawn_x = x1;
-    int x = x1;
-    for (; x <= x2; x++)
+    if (dx * dy > 0) y_inc = 1; else y_inc = -1;
+    int slope_error = 0;
+    for (;x1 <= x2; x1++)
     {
-        if (diff > 0)
+        slope_error += dy;
+        if (abs(slope_error) > dx)
         {
-            //printf("dx %d dy %d diff %d last_drawn %d to %d\n", dx, dy, diff, last_drawn_x, x);
-            kev_render_horiz_line(buff, last_drawn_x, x, y1, rgb);
-            last_drawn_x = x;
-            y1 += y_inc;
-            diff += (2 * (dy - dx));
-            //printf("diff %d\n", diff);
+            slope_error -= y_inc * dx;
+            kev_render_horiz_line(buff, last_drawn_x, x1 - 1, y1, rgb);
+            last_drawn_x = x1;
+            y1+= y_inc;
         }
-        else
-        {
-            diff += (2 * dy);
-        }
+        
     }
-    if (x > last_drawn_x)
-    {
-        kev_render_horiz_line(buff, last_drawn_x, x, y1, rgb);
-    }
+    kev_render_horiz_line(buff, last_drawn_x, x2, y2, rgb); // use x2 as x1 has overshot it
+
 }
 
 void kev_render_line_high_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
 {
-
+    printf("hello x1 %d, y1 %d, x2 %d, y2 %d\n", x1, y1, x2, y2);
     int dx = x2 - x1;
     int dy = y2 - y1;
-    int x_inc = 1;
-    if (dx < 0)
-    {
-        x_inc = -1;
-        dx = 0 - dx;
-    }
-    int diff = (2 * dx) - dy;
+    int x_inc;
     int last_drawn_y = y1;
-    int y = y1;
-    for (; y <= y2; y++)
+    if (dx * dy > 0) x_inc = 1; else x_inc = -1;
+    int slope_error = 0;
+    for (;y1 <= y2; y1++)
     {
-        if (diff > 0)
+        // int y = round(y1 + slope * (x - x1));
+        slope_error += dx;
+        if (abs(slope_error) > dy)
         {
-            //printf("dx %d dy %d diff %d last_drawn %d to %d\n", dx, dy, diff, last_drawn_y, y);
-            kev_render_vert_line(buff, x1, last_drawn_y, y, rgb);
-            last_drawn_y = y;
-            x1 += x_inc;
-            diff += (2 * (dx - dy));
-            //printf("diff %d\n", diff);
+            slope_error -= x_inc * dy;
+            kev_render_vert_line(buff, x1, last_drawn_y, y1 - 1, rgb);
+            last_drawn_y = y1;
+            x1+= x_inc;
         }
-        else
-        {
-            diff += (2 * dx);
-        }
+
+
     }
-    if (y > last_drawn_y)
-    {
-        kev_render_vert_line(buff, x1, last_drawn_y, y, rgb);
-    }
+    kev_render_vert_line(buff, x2, last_drawn_y, y2, rgb); // use y2 as y1 has overshot it
+
 }
 
 void kev_render_line(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
