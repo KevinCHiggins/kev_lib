@@ -14,7 +14,7 @@ char *kev_test_running_test;
 const char *kev_test_FAILED = "Test failed:\t";
 const char *kev_test_SUCCEEDED = "Test succeeded:\t";
 const float KEV_TEST_FLOAT_MARGIN = 0.00000018; // bigger margin needed for kev_caster_test.c; was 0.00000006;
-const float KEV_TEST_DOUBLE_MARGIN = 0.000000000000006; // untested
+const double KEV_TEST_DOUBLE_MARGIN = 0.00000000000000006;
 int kev_test_tests_run;
 int kev_test_tests_passed;
 int kev_test_assertions_evaluated_in_this_test;
@@ -137,7 +137,7 @@ void kev_test_assert_int_not_equal(int i, int j)
 void kev_test_assert_float_equal(float i, float j)
 {
     error_if_test_not_running();
-    if (fabs(i - j) > KEV_TEST_FLOAT_MARGIN)
+    if (fabsf(i - j) > KEV_TEST_FLOAT_MARGIN)
     {
         longjmp(test_run, -1);
     }
@@ -147,7 +147,7 @@ void kev_test_assert_float_equal(float i, float j)
 void kev_test_assert_float_not_equal(float i, float j)
 {
     error_if_test_not_running();
-    if (fabs(i - j) < KEV_TEST_FLOAT_MARGIN)
+    if (fabsf(i - j) < KEV_TEST_FLOAT_MARGIN)
     {
         longjmp(test_run, -1);
     }
