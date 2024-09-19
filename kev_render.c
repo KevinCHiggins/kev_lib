@@ -78,7 +78,7 @@ void kev_render_vert_line(kev_render_buffer buff, int x, int y1, int y2, unsigne
 
 void kev_render_line_low_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
 {
-
+    puts("hello");
     int dx = x2 - x1;
     int dy = y2 - y1;
     int y_inc = 1;
@@ -181,7 +181,14 @@ void kev_render_point(kev_render_buffer buff, int x, int y, unsigned int rgb)
 {
     buff.buffer[y * buff.width + x] = rgb;
 }
-
+void kev_render_fill(kev_render_buffer buff, unsigned int rgb)
+{
+    for (int i = 0; i < buff.width * buff.height; i++)
+    {
+    
+        buff.buffer[i] = rgb;
+    }
+}
 void kev_render_int(kev_render_buffer buff, int x, int y, int digit_width, int digit_height, int number, unsigned int rgb)
 {
     char formatted[50];

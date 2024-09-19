@@ -27,6 +27,7 @@ void kev_render_int(kev_render_buffer buff, int x, int y, int digit_width, int d
 unsigned int kev_render_rgb(unsigned char r, unsigned char g, unsigned char b);
 void kev_render_digit(kev_render_buffer buff, int x, int y, int width, int height, char digit, unsigned int rgb);
 void kev_render_point(kev_render_buffer buff, int x, int y, unsigned int rgb);
+void kev_render_fill(kev_render_buffer buff, unsigned int rgb);
 kev_render_buffer load_tga(char *path);
 
 #endif

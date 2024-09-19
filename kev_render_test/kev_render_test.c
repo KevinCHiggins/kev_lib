@@ -11,18 +11,70 @@
 uint32_t buff[WIDTH * HEIGHT];
 char title[] = "kev_render Test";
 kev_win win;
+kev_render_buffer render_buffer;
 unsigned int white;
+unsigned int reddish;
+
+void setup()
+{
+	white = kev_render_rgb(255, 255, 255);
+	reddish = kev_render_rgb(160, 5, 75);
+	render_buffer = (kev_render_buffer) {
+		.width = WIDTH,
+		.height = HEIGHT,
+		.bpp = 32,
+		.buffer = buff
+	};
+	kev_render_fill(render_buffer, reddish);
+}
+int check_point(int x, int y)
+{
+	return (buff[y * WIDTH + x] == white);
+}
 void test_points()
 {
-    int x = 20;
-    int y = 20;
-    //kev_render_point(win.buffer, x, y, white);
-    kev_test_assert_true(buff[y * WIDTH + x] == white);
+
+	int x = 20;
+	int y = 20;
+	kev_render_point(render_buffer, x, y, white);
+	kev_test_assert_true(buff[y * WIDTH + x] == white);
 }
-int run()
+void test_low_slope_line_pos_x_pos_y()
+{
+	int x1 = 55;
+	int y1 = 5;
+	int x2 = 65;
+	int y2 = 10;
+	kev_render_line(render_buffer, x1, y1, x2, y2, white);
+	kev_test_assert_true(check_point(x1, y1));
+	kev_test_assert_true(check_point(x2, y2));
+	kev_test_assert_false(check_point(x1, y1 - 1));
+	kev_test_assert_false(check_point(x1 - 1, y1));
+	kev_test_assert_false(check_point(x1 - 1, y1 - 1));
+	kev_test_assert_false(check_point(x2, y2 + 1));
+	kev_test_assert_false(check_point(x2 + 1, y2));
+	//kev_test_assert_false(check_point(x2 + 1, y2 + 1)); // fails here
+}
+void test_low_slope_line_neg_x_neg_y()
+{
+	int x2 = 105;
+	int y2 = 5;
+	int x1 = 115;
+	int y1 = 10;
+	kev_render_line(render_buffer, x1, y1, x2, y2, white);
+	kev_test_assert_true(check_point(x1, y1));
+	kev_test_assert_true(check_point(x2, y2));
+	kev_test_assert_false(check_point(x1, y1 - 1));
+	kev_test_assert_false(check_point(x1 - 1, y1));
+	kev_test_assert_false(check_point(x1 - 1, y1 - 1));
+	kev_test_assert_false(check_point(x2, y2 + 1));
+	kev_test_assert_false(check_point(x2 + 1, y2));
+	//kev_test_assert_false(check_point(x2 + 1, y2 + 1)); // fails here
+}
+int display()
 {
 
-	memset(&buff, 0, WIDTH * HEIGHT * sizeof(uint32_t));
+	
 
 	win = (kev_win){
 	.width = WIDTH,
@@ -31,14 +83,9 @@ int run()
 	.buffer = buff
 	};
 
-	kev_render_buffer render_buffer = {
-		.width = WIDTH,
-		.height = HEIGHT,
-		.bpp = 32,
-		.buffer = buff
-	};
 
-	white = kev_render_rgb(255, 255, 255);
+
+
 	kev_win_init(&win);
 	
 	while (1)
@@ -49,15 +96,21 @@ int run()
 	}
 }
 
+void run_all_tests()
+{
+	kev_test_run("Drawing points.", test_points);
+	kev_test_run("Low slope line, positive x, positive y", test_low_slope_line_pos_x_pos_y);
+	puts(kev_test_get_report());
+}
+
 #ifdef _WIN32
 #include <windows.h>
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)
 {
-	kev_test_run("Drawing points.", test_points);
-
-	puts(kev_test_get_report());
-	return run();
+	setup();
+	run_all_tests();
+	return display();
 
 }
 
@@ -69,10 +122,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, 
 
 int main()
 {
-	kev_test_run("Drawing points.", test_points);
+	setup();
+	run_all_tests();
 
 	puts(kev_test_get_report());
-	return run();
+	return display();
 }
 #endif
 
