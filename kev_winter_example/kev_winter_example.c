@@ -106,7 +106,15 @@ int run()
 		kev_render_line(render_buffer, 50, 200, 60, 300, white);
 		*/
 		spinning_diamond(render_buffer, off, 100, white);
-		kev_win_poll_event(&win);
+
+		kev_win_update_events(&win);
+		kev_win_event event;
+		int event_found = kev_win_poll_event(&win, &event);
+		while (event_found)
+		{
+			printf("Press %x\n", event.keycode);
+			event_found = kev_win_poll_event(&win, &event);
+		}
 		frame_time = regulate_frame_time(FRAME_TIME_NS);
 
 	}

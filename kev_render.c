@@ -78,7 +78,6 @@ void kev_render_vert_line(kev_render_buffer buff, int x, int y1, int y2, unsigne
 
 void kev_render_line_low_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
 {
-    printf("hello x1 %d, y1 %d, x2 %d, y2 %d\n", x1, y1, x2, y2);
     int dx = x2 - x1;
     int dy = y2 - y1;
     int y_inc;
@@ -103,7 +102,6 @@ void kev_render_line_low_slope(kev_render_buffer buff, int x1, int y1, int x2, i
 
 void kev_render_line_high_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
 {
-    printf("hello x1 %d, y1 %d, x2 %d, y2 %d\n", x1, y1, x2, y2);
     int dx = x2 - x1;
     int dy = y2 - y1;
     int x_inc;

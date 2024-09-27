@@ -8,6 +8,7 @@
 #include <windows.h>
 const char class_name[] = "kev_winter";
 
+kev_win_event_list_item *event_list_end;
 HDC hdc;
 BITMAPINFO buff_info;
 int64_t get_tick_in_ns();
@@ -74,7 +75,7 @@ void kev_win_init(kev_win *win)
 	redraw(win);
 
 }
-void kev_win_poll_event(kev_win *win)
+void kev_win_update_events(kev_win *win)
 {
 
 	MSG msg;
@@ -225,7 +226,7 @@ void close_x11(kev_win *win)
 	XCloseDisplay(win->dis);
 	//exit(0);
 }
-void kev_win_poll_event(kev_win *win)
+void kev_win_update_events(kev_win *win)
 {
 	redraw(win);
 
@@ -241,6 +242,15 @@ void kev_win_poll_event(kev_win *win)
 		if (event.type == Expose)
 		{
 			
+		}
+		else if (event.type == KeyPress)
+		{
+			printf("Press %x\n", event.xkey.keycode);
+			win->event_list_start = kev_win_queue_new_event(KEYPRESS, linux_keycodes[event.xkey.keycode]);
+		}
+		else if (event.type == KeyRelease)
+		{
+			printf("Release %x\n", event.xkey.keycode);
 		}
 	}
 	if (XCheckWindowEvent(win->dis, win->x_win, NoEventMask, &event)) printf("Erm");
@@ -289,3 +299,24 @@ void redraw(kev_win *win)
 }
 
 #endif
+
+kev_win_event_list_item *kev_win_queue_new_event(int type, int keycode)
+{
+	kev_win_event_list_item *ptr = (kev_win_event_list_item *)calloc(1, sizeof(kev_win_event_list_item));
+	ptr->event.type = type;
+	ptr->event.keycode = keycode;
+}
+
+int kev_win_poll_event(kev_win *win, kev_win_event *event)
+{
+	if (win->event_list_start)
+	{
+		kev_win_event_list_item *start = win->event_list_start;
+		*event = start->event;
+
+		win->event_list_start = win->event_list_start->next;
+		free(start);
+		return 1;
+	}
+	return 0;
+}
