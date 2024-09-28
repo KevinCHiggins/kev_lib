@@ -128,14 +128,18 @@ void sleep_approx_ns(int64_t ns)
 	Sleep(ns / 1000000);
 }
 
+void open_console()
+{
+	FILE* fp;
+	AllocConsole();
+	freopen_s(&fp, "CONIN$", "r", stdin);
+	freopen_s(&fp, "CONOUT$", "w", stdout);
+	freopen_s(&fp, "CONOUT$", "w", stderr);
+}
+
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)
 {
-	//FILE* fp;
-
-	//AllocConsole();
-	//freopen_s(&fp, "CONIN$", "r", stdin);
-	//freopen_s(&fp, "CONOUT$", "w", stdout);
-	//freopen_s(&fp, "CONOUT$", "w", stderr);
+	open_console();
 	return run();
 
 

@@ -147,6 +147,17 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 		redraw(win);
 
 		}
+	case WM_KEYDOWN:
+		{
+			if (uint_param)
+			{
+				win->event_list_start = kev_win_queue_new_event(KEYPRESS, windows_virtual_keycodes[uint_param]);
+			}
+		}
+	case WM_KEYUP:
+		{
+
+		}
 	break;
 	default:
 		return DefWindowProc(handle, msg, uint_param, long_param);
