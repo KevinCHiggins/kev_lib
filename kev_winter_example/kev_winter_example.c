@@ -112,8 +112,11 @@ int run()
 		int event_found = kev_win_poll_event(&win, &event);
 		while (event_found)
 		{
-			printf("Press %x\n", event.keycode);
 			event_found = kev_win_poll_event(&win, &event);
+		}
+		if (kev_win_is_pressed(KEYCODE_A))
+		{
+			printf("A %x", KEYCODE_A);
 		}
 		frame_time = regulate_frame_time(FRAME_TIME_NS);
 
