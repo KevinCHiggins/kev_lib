@@ -1,8 +1,7 @@
 #ifndef _KEV_WINTER_HEADER_
 #define _KEV_WINTER_HEADER_
 #include <stdint.h>
-
-
+#include <stdbool.h>
 
 typedef struct kev_win_event
 {
@@ -21,11 +20,8 @@ enum EventType {
 	KEYRELEASE
 };
 
-
-
-
 enum Keycode {
-	KEYCODE_LEFTMOUSE,
+	KEYCODE_LEFTMOUSE = 0,
 	KEYCODE_RIGHTMOUSE,
 	KEYCODE_MIDDLEMOUSE,
 	KEYCODE_ESCAPE,
@@ -124,10 +120,11 @@ enum Keycode {
 	KEYCODE_PAGEDOWN,
 	KEYCODE_INSERT,
 	KEYCODE_DELETE,
-	KEYCODE_PRINTSCREEN
+	KEYCODE_PRINTSCREEN,
+	NUM_KEYCODES
 };
 
-// unfinished
+
 static const int windows_virtual_keycodes[] = {
 	KEYCODE_LEFTMOUSE,
 	KEYCODE_RIGHTMOUSE,
@@ -383,10 +380,22 @@ static const int windows_virtual_keycodes[] = {
 	KEYCODE_UNUSED,
 	KEYCODE_UNUSED,
 	KEYCODE_UNUSED,
-	KEYCODE_UNUSED,
+	KEYCODE_UNUSED
 };
 
-static const int linux_keycodes[] = {
+static const int linux_keycodes_map[] = {
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
+	KEYCODE_UNUSED,
 	KEYCODE_ESCAPE,
 	KEYCODE_1,
 	KEYCODE_2,
@@ -742,5 +751,7 @@ kev_win_event_list_item *kev_win_queue_new_event(int type, int keycode);
 void kev_win_update_events(kev_win *win);
 int kev_win_poll_event(kev_win *win, kev_win_event *event);
 void kev_win_init(kev_win *win);
+
+bool kev_win_is_pressed(int keycode);
 
 #endif

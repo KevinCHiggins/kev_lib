@@ -4,6 +4,11 @@
 #include <time.h>
 #include "kev_winter.h"
 
+
+void kev_win_drain_events(kev_win *win);
+
+bool is_pressed[100]; // doesn't handle focus for multiple windows
+
 #ifdef _WIN32
 #include <windows.h>
 const char class_name[] = "kev_winter";
@@ -77,6 +82,7 @@ void kev_win_init(kev_win *win)
 }
 void kev_win_update_events(kev_win *win)
 {
+	kev_win_drain_events(win); // in case client didn't poll events
 
 	MSG msg;
 	if (GetMessage(&msg, NULL, 0, 0) > 0)
@@ -151,12 +157,20 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 		{
 			if (uint_param)
 			{
-				win->event_list_start = kev_win_queue_new_event(KEYPRESS, windows_virtual_keycodes[uint_param]);
+				enum Keycode kev_win_keycode = windows_virtual_keycodes_map[uint_param];
+				win->event_list_start = kev_win_queue_new_event(KEYPRESS, kev_win_keycode);
+				is_pressed[kev_win_keycode] = true;
+
 			}
 		}
 	case WM_KEYUP:
 		{
-
+			if (uint_param)
+			{
+				enum Keycode kev_win_keycode = windows_virtual_keycodes_map[uint_param];
+				win->event_list_start = kev_win_queue_new_event(KEYRELEASE, kev_win_keycode);
+				is_pressed[kev_win_keycode] = false;
+			}
 		}
 	break;
 	default:
@@ -240,6 +254,7 @@ void close_x11(kev_win *win)
 void kev_win_update_events(kev_win *win)
 {
 	redraw(win);
+	kev_win_drain_events(win); // in case client didn't poll events
 
 	XEvent event;
 	//printf("%ld", LastKnownRequestProcessed(dis));
@@ -256,12 +271,16 @@ void kev_win_update_events(kev_win *win)
 		}
 		else if (event.type == KeyPress)
 		{
-			printf("Press %x\n", event.xkey.keycode);
-			win->event_list_start = kev_win_queue_new_event(KEYPRESS, linux_keycodes[event.xkey.keycode]);
+			int kev_win_keycode = linux_keycodes_map[event.xkey.keycode];
+			win->event_list_start = kev_win_queue_new_event(KEYPRESS, kev_win_keycode);
+			is_pressed[kev_win_keycode] = true;
+			printf("Setting %d to %d\n", kev_win_keycode, is_pressed[kev_win_keycode]);
+			printf("Keycode LEFTMOUSE RIGHTMOUSE MIDDLEMOUSE ESCAPE %d %d %d %d", KEYCODE_LEFTMOUSE, KEYCODE_RIGHTMOUSE, KEYCODE_MIDDLEMOUSE, KEYCODE_ESCAPE);
 		}
 		else if (event.type == KeyRelease)
 		{
-			printf("Release %x\n", event.xkey.keycode);
+			enum Keycode kev_win_keycode = linux_keycodes_map[event.xkey.keycode];
+			win->event_list_start = kev_win_queue_new_event(KEYRELEASE, kev_win_keycode);
 		}
 	}
 	if (XCheckWindowEvent(win->dis, win->x_win, NoEventMask, &event)) printf("Erm");
@@ -330,4 +349,16 @@ int kev_win_poll_event(kev_win *win, kev_win_event *event)
 		return 1;
 	}
 	return 0;
+}
+
+void kev_win_drain_events(kev_win *win)
+{
+		kev_win_event event;
+		int event_found = kev_win_poll_event(win, &event);
+		while (event_found) event_found = kev_win_poll_event(win, &event);
+}
+
+bool kev_win_is_pressed(int keycode)
+{
+	return is_pressed[keycode];
 }

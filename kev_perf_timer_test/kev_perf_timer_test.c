@@ -1,8 +1,8 @@
-#include "kev_perf_timer.h"
-#include "kev_test.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "kev_perf_timer.h"
+#include "kev_test.h"
 
 void test_first_call_zero_s();
 void test_first_call_zero_ns();

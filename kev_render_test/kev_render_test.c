@@ -183,7 +183,7 @@ int display()
 	while (1)
 	{
 
-		kev_win_poll_event(&win);
+		kev_win_update_events(&win);
 
 	}
 }

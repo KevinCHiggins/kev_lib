@@ -5,8 +5,8 @@
 #include "kev_perf_timer.h"
 #include "kev_render.h"
 
-#define WIDTH 1024
-#define HEIGHT 768
+#define WIDTH 320
+#define HEIGHT 200
 
 #define ARENA_WIDTH 8
 #define ARENA_HEIGHT 8
@@ -220,7 +220,7 @@ int run()
 		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, left_x * grid_size_x, left_y * grid_size_y, reddish);
 		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, reddish);
 		kev_render_line(render_buffer, left_x * grid_size_x, left_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, reddish);
-		kev_win_poll_event(&win);
+		kev_win_update_events(&win);
 		frame_time = regulate_frame_time(FRAME_TIME_NS);
 
 	}
