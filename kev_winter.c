@@ -272,14 +272,15 @@ void kev_win_update_events(kev_win *win)
 		else if (event.type == KeyPress)
 		{
 			int kev_win_keycode = linux_keycodes_map[event.xkey.keycode];
-			win->event_list_start = kev_win_queue_new_event(KEYPRESS, kev_win_keycode);
 			is_pressed[kev_win_keycode] = true;
-			printf("Setting %d to %d\n", kev_win_keycode, is_pressed[kev_win_keycode]);
-			printf("Keycode LEFTMOUSE RIGHTMOUSE MIDDLEMOUSE ESCAPE %d %d %d %d", KEYCODE_LEFTMOUSE, KEYCODE_RIGHTMOUSE, KEYCODE_MIDDLEMOUSE, KEYCODE_ESCAPE);
+			win->event_list_start = kev_win_queue_new_event(KEYPRESS, kev_win_keycode);
+			printf("Linux: %d, kev_win: %d to %d\n", event.xkey.keycode, kev_win_keycode, is_pressed[kev_win_keycode]);
+			printf("Keycode S X ENTER \\ CTRL %d %d %d %d %d\n", KEYCODE_S, KEYCODE_X, KEYCODE_ENTER, KEYCODE_BACKSLASH, KEYCODE_CTRL);
 		}
 		else if (event.type == KeyRelease)
 		{
 			enum Keycode kev_win_keycode = linux_keycodes_map[event.xkey.keycode];
+			is_pressed[kev_win_keycode] = false;
 			win->event_list_start = kev_win_queue_new_event(KEYRELEASE, kev_win_keycode);
 		}
 	}
