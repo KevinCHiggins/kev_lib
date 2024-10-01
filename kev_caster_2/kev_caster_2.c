@@ -7,6 +7,7 @@
 
 #define WIDTH 640
 #define HEIGHT 480
+#define SCALE 2
 
 #define ARENA_WIDTH 8
 #define ARENA_HEIGHT 8
@@ -198,6 +199,7 @@ int run()
 	kev_win win = {
 	.width = WIDTH,
 	.height = HEIGHT,
+	.scale = SCALE,
 	.title = title,
 	.buffer = buff
 	};

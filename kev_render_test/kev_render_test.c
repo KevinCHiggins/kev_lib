@@ -7,6 +7,7 @@
 
 #define WIDTH 320
 #define HEIGHT 240
+#define SCALE 1
 
 uint32_t buff[WIDTH * HEIGHT];
 char title[] = "kev_render Test";
@@ -171,6 +172,7 @@ int display()
 	win = (kev_win){
 	.width = WIDTH,
 	.height = HEIGHT,
+	.scale = SCALE,
 	.title = title,
 	.buffer = buff
 	};

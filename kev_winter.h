@@ -723,6 +723,7 @@ static const int linux_keycodes_map[] = {
 typedef struct kev_win{
 	int width;
 	int height;
+	int scale;
 	char *title;
 	uint32_t *buffer;
 	int64_t last_frame_ns;
@@ -736,6 +737,7 @@ typedef struct kev_win{
 	Display *dis;
 	int screen;
 	Window x_win;
+	uint32_t *scaled_buffer;
 	GC gc;
 	XImage *buff_ximage;
 

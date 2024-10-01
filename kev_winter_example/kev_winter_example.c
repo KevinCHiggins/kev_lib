@@ -7,6 +7,7 @@
 
 #define WIDTH 320
 #define HEIGHT 240
+#define SCALE 2
 
 void sleep_approx_ns(int64_t target_time_ns);
 
@@ -51,6 +52,7 @@ int run()
 	kev_win win = {
 	.width = WIDTH,
 	.height = HEIGHT,
+	.scale = SCALE,
 	.title = title,
 	.buffer = buff
 	};

@@ -204,11 +204,12 @@ void kev_win_init(kev_win *win)
 	}
 
 	win->screen = DefaultScreen(win->dis);
+	win->scaled_buffer = calloc(1, sizeof(uint32_t) * win->height * win->width * win->scale * win->scale);
 
 
+	printf("w %d orig %d scale %d", win->width * win->scale, win->width, win->scale);
 
-
-	win->x_win = XCreateSimpleWindow(win->dis, DefaultRootWindow(win->dis), 0, 0, win->width, win->height, 5, 0, 0);
+	win->x_win = XCreateSimpleWindow(win->dis, DefaultRootWindow(win->dis), 0, 0, win->width * win->scale, win->height*win->scale, 5, 0, 0);
 	XSetStandardProperties(win->dis, win->x_win, win->title, "Yo", None, NULL, 0, NULL);
 	Atom *protocols_list;
 	int num_protocols;
@@ -249,6 +250,7 @@ void close_x11(kev_win *win)
 	XFreeGC(win->dis, win->gc);
 	XDestroyWindow(win->dis, win->x_win);
 	XCloseDisplay(win->dis);
+	free(win->scaled_buffer);
 	//exit(0);
 }
 void kev_win_update_events(kev_win *win)
@@ -315,17 +317,33 @@ void kev_win_update_events(kev_win *win)
 
 }
 void redraw(kev_win *win)
-
 {
+	for (int row = 0; row < win->height; row++)
+	{
+		for (int pixel = 0; pixel < win->width; pixel++)
+		{
+			uint32_t pixel_value = win->buffer[row * win->width + pixel];
+
+			for (int y_scale = 0; y_scale < win->scale; y_scale++)
+			{
+				for (int x_scale = 0; x_scale < win->scale; x_scale++)
+				{
+					win->scaled_buffer[((row * win->scale + y_scale) * win->width * win->scale) + ((pixel * win->scale) + x_scale)] = pixel_value;
+				}
+			}
+			
+		}
+	}
 
 	if (!win->buff_ximage)
 	{
-		win->buff_ximage = XCreateImage(win->dis, DefaultVisual(win->dis, win->screen), 24, ZPixmap, 0, (char *)win->buffer, win->width, win->height, 32, 0);
+		win->buff_ximage = XCreateImage(win->dis, DefaultVisual(win->dis, win->screen), 24, ZPixmap, 0, (char *)win->scaled_buffer, win->width * win->scale, win->height * win->scale, 32, 0);
 		XInitImage(win->buff_ximage);
 	}
 
-	XPutImage(win->dis, win->x_win, win->gc, win->buff_ximage, 0, 0, 0, 0, win->width, win->height);
+	XPutImage(win->dis, win->x_win, win->gc, win->buff_ximage, 0, 0, 0, 0, win->width * win->scale, win->height * win->scale);
 	//XMapWindow(win->dis, win->x_win);
+
 	//XClearWindow(dis, win);
 }
 
