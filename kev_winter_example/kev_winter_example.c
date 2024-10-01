@@ -114,9 +114,15 @@ int run()
 		{
 			event_found = kev_win_poll_event(&win, &event);
 		}
-		if (kev_win_is_pressed(KEYCODE_A))
+		if (kev_win_is_pressed(KEYCODE_UP))
 		{
-			printf("A %x", KEYCODE_A);
+			printf("Up");
+			off++;
+		}
+		if (kev_win_is_pressed(KEYCODE_DOWN))
+		{
+			printf("Down");
+			off--;
 		}
 		frame_time = regulate_frame_time(FRAME_TIME_NS);
 

@@ -5,8 +5,8 @@
 #include "kev_perf_timer.h"
 #include "kev_render.h"
 
-#define WIDTH 320
-#define HEIGHT 200
+#define WIDTH 640
+#define HEIGHT 480
 
 #define ARENA_WIDTH 8
 #define ARENA_HEIGHT 8
@@ -38,6 +38,9 @@ int walls[ARENA_WIDTH][ARENA_WIDTH] = {
 };
 float player_x = 4.5;
 float player_y = 4.5;
+float player_acc = 0.01;
+float player_vel = 0.000;
+float player_max_vel = 0.005;
 double player_rads = 5.0;
 double two_pi = M_PI * 2;
 double rads_to_degrees(double rads)
@@ -51,19 +54,50 @@ double degrees_to_rads(double degrees)
 
 double fov_rads;
 
-void update_player()
-{
-	player_rads += 0.008;
-	while (player_rads >= two_pi)
-	{
-		player_rads -= two_pi;
-	}
-}
-
 int is_wall(int x, int y)
 {
 	return walls[y][x];
 }
+
+void update_player()
+{
+	if (kev_win_is_pressed(KEYCODE_RIGHT))
+	{
+		player_rads -= 0.008;
+	}
+	if (kev_win_is_pressed(KEYCODE_LEFT))
+	{
+		player_rads += 0.008;
+	}
+	if (kev_win_is_pressed(KEYCODE_UP) && player_vel < player_max_vel)
+	{
+		player_vel += player_acc;
+	}
+	if (kev_win_is_pressed(KEYCODE_DOWN) && player_vel > (0 - player_max_vel))
+	{
+		player_vel -= player_acc;
+	}
+	player_vel = player_vel * 0.75;
+
+	while (player_rads >= two_pi)
+	{
+		player_rads -= two_pi;
+	}
+	float dx = cos(player_rads) * player_vel;
+	float dy = (0 - sin(player_rads)) * player_vel;
+	if (is_wall(floor(player_x), floor(player_y + dy)))
+	{
+		dy = 0;
+	}
+	if (is_wall(floor(player_x + dx), floor(player_y)))
+	{
+		dx = 0;
+	}
+	player_x += dx;
+	player_y += dy;
+}
+
+
 
 double dist_to_wall(double ang, double player_x, double player_y)
 {
@@ -217,9 +251,9 @@ int run()
 		double right_x = player_x + cos(ang_to_right);
 		double right_y = player_y + 0 - sin(ang_to_right);
 
-		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, left_x * grid_size_x, left_y * grid_size_y, reddish);
-		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, reddish);
-		kev_render_line(render_buffer, left_x * grid_size_x, left_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, reddish);
+		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, left_x * grid_size_x, left_y * grid_size_y, white);
+		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, white);
+		kev_render_line(render_buffer, left_x * grid_size_x, left_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, white);
 		kev_win_update_events(&win);
 		frame_time = regulate_frame_time(FRAME_TIME_NS);
 
