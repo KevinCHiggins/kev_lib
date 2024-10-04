@@ -13,12 +13,12 @@ kev_img from_tga(char *filename)
 		printf("Only type 2 TGA images (uncompressed RGB) accepted");
 		exit(1);
 	}
-	char *raw_pixels;
+	unsigned char *raw_pixels; // because signed types have undefined behavior when left shifted
 	uint32_t *pixels;
 	int num_pixels = header.width * header.height;
 	size_t bytes_per_pixel = header.bpp / 8;
 	pixels = (uint32_t *)calloc(num_pixels, sizeof(uint32_t));
-	raw_pixels = (char *)calloc(num_pixels, bytes_per_pixel);
+	raw_pixels = (unsigned char *)calloc(num_pixels, bytes_per_pixel);
 
 
 	fseek(fptr, header.image_descriptor_length, SEEK_CUR);

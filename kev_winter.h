@@ -126,7 +126,7 @@ enum Keycode {
 };
 
 
-static const int windows_virtual_keycodes[] = {
+static const int windows_virtual_keycodes_map[] = {
 	KEYCODE_LEFTMOUSE,
 	KEYCODE_RIGHTMOUSE,
 	KEYCODE_UNUSED,

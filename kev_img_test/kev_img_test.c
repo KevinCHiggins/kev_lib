@@ -35,14 +35,9 @@ void setup()
 }
 int check_point(int x, int y, unsigned int rgb)
 {
-	char rgb_string[11];
-	printf("Found");
-	kev_render_debug_rgb(buff[y * WIDTH + x]);
-	printf("Seeking ");
-	kev_render_debug_rgb(rgb);
-	return (buff[y * WIDTH + x] == rgb);
+	kev_test_assert_true(buff[y * WIDTH + x] == rgb);
 }
-void test_points()
+void test_img()
 {
 
 	int x = 20;
@@ -53,6 +48,7 @@ void test_points()
 	check_point(x + 1, y, kev_render_rgb(1, 1, 1));
 	check_point(x + 2, y, kev_render_rgb(129, 106, 162));
 	check_point(x + 3, y, kev_render_rgb(129, 104, 162));
+	check_point(x + 31, y + 31, kev_render_rgb(65, 231, 238));
 }
 
 int display()
@@ -80,7 +76,7 @@ int display()
 
 void run_all_tests()
 {
-	kev_test_run("Drawing points.", test_points);
+	kev_test_run("Drawing image and checking some pixels.", test_img);
 }
 
 #ifdef _WIN32
@@ -88,8 +84,14 @@ void run_all_tests()
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)
 {
+	FILE* fp;
+	AllocConsole();
+	freopen_s(&fp, "CONIN$", "r", stdin);
+	freopen_s(&fp, "CONOUT$", "w", stdout);
+	freopen_s(&fp, "CONOUT$", "w", stderr);
 	setup();
 	run_all_tests();
+	puts(kev_test_get_report());
 	return display();
 
 }
