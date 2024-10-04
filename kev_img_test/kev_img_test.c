@@ -49,7 +49,10 @@ void test_points()
 	int y = 20;
 	img = from_tga("32x32.tga");
 	kev_render_img(render_buffer, x, y, 32, 32, img.pixels);
-	kev_test_assert_true(check_point(x, y, cyanish));
+	check_point(x, y, kev_render_rgb(31, 249, 251));
+	check_point(x + 1, y, kev_render_rgb(1, 1, 1));
+	check_point(x + 2, y, kev_render_rgb(129, 106, 162));
+	check_point(x + 3, y, kev_render_rgb(129, 104, 162));
 }
 
 int display()

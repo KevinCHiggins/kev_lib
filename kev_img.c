@@ -27,7 +27,7 @@ kev_img from_tga(char *filename)
 	{
 		for (int pixel = 0; pixel < num_pixels; pixel++)
 		{
-			uint32_t val = (raw_pixels[pixel * bytes_per_pixel] << 0) + (raw_pixels[pixel * bytes_per_pixel + 1] << 8) + (raw_pixels[pixel * bytes_per_pixel + 2] << 16);
+			uint32_t val = (raw_pixels[pixel * bytes_per_pixel]) + (raw_pixels[pixel * bytes_per_pixel + 1] << 8) + (raw_pixels[pixel * bytes_per_pixel + 2] << 16);
 			pixels[pixel] = val;
 		}
 	}

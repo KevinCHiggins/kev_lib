@@ -16,7 +16,7 @@ unsigned int kev_render_rgb(unsigned char r, unsigned char g, unsigned char b)
 
 void kev_render_debug_rgb(unsigned int rgb)
 {
-    printf("%3d,%3d,%3d\n", rgb & 0xff000000 >> 24, rgb & 0x00ff0000 >> 16, rgb & 0x0000ff00 >> 8);
+    printf("%3d,%3d,%3d\n", (rgb & 0x00ff0000) >> 16, (rgb & 0x0000ff00) >> 8, (rgb & 0x000000ff));
 }
 
 void kev_render_test_pattern(kev_render_buffer buff, int anim_offset)
