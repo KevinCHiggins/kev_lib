@@ -14,6 +14,11 @@ unsigned int kev_render_rgb(unsigned char r, unsigned char g, unsigned char b)
     return result;
 }
 
+void kev_render_debug_rgb(unsigned int rgb)
+{
+    printf("%3d,%3d,%3d\n", rgb & 0xff000000 >> 24, rgb & 0x00ff0000 >> 16, rgb & 0x0000ff00 >> 8);
+}
+
 void kev_render_test_pattern(kev_render_buffer buff, int anim_offset)
 {
     switch (buff.bpp)
@@ -186,6 +191,19 @@ void kev_render_rectangle(kev_render_buffer buff, int x1, int y1, int x2, int y2
     kev_render_horiz_line(buff, x2, x1, y2, rgb);
     kev_render_vert_line(buff, x1, y2, y1, rgb);
 }
+
+void kev_render_img(kev_render_buffer buff, int x, int y, int width, int height, uint32_t *pixels)
+{
+    for (int row = y; row < y + height; row++)
+    {
+        for (int pixel = x; pixel < x + width; pixel++)
+        {
+            buff.buffer[(row * buff.width) + pixel] = pixels[(row - y) * width + (pixel - x)];
+        }
+    }
+
+}
+
 void kev_render_digit(kev_render_buffer buff, int x, int y, int width, int height, char digit, unsigned int rgb)
 {
     // to avoid wasting pixels at bottom and right we position lines sub-pixel (float arithmetic) then round

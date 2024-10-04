@@ -1,6 +1,6 @@
 #include "kev_img.h"
 
-char *read_tga_pixel_data(char *filename)
+kev_img from_tga(char *filename)
 {
 	FILE *fptr = fopen(filename, "r");
 	printf("Size of struct %ld\n", sizeof(kev_img_tga_header));
@@ -13,10 +13,33 @@ char *read_tga_pixel_data(char *filename)
 		printf("Only type 2 TGA images (uncompressed RGB) accepted");
 		exit(1);
 	}
-	char *pixels; // consider making a pixel struct...
+	char *raw_pixels;
+	uint32_t *pixels;
+	int num_pixels = header.width * header.height;
 	size_t bytes_per_pixel = header.bpp / 8;
-	pixels = (char *)calloc(header.width * header.height, bytes_per_pixel);
+	pixels = (uint32_t *)calloc(num_pixels, sizeof(uint32_t));
+	raw_pixels = (char *)calloc(num_pixels, bytes_per_pixel);
+
+
 	fseek(fptr, header.image_descriptor_length, SEEK_CUR);
-	fread(pixels, header.width * header.height * bytes_per_pixel, 1, fptr);
-	return pixels;
+	fread(raw_pixels, header.width * header.height * bytes_per_pixel, 1, fptr);
+	if (bytes_per_pixel == 3)
+	{
+		for (int pixel = 0; pixel < num_pixels; pixel++)
+		{
+			uint32_t val = (raw_pixels[pixel * bytes_per_pixel] << 0) + (raw_pixels[pixel * bytes_per_pixel + 1] << 8) + (raw_pixels[pixel * bytes_per_pixel + 2] << 16);
+			pixels[pixel] = val;
+		}
+	}
+	else
+	{
+		printf("TGA pixel data packing other than 3-byte not implemented");
+		exit(1);
+	}
+	return (kev_img){
+		(size_t) header.width,
+		(size_t) header.height,
+		bytes_per_pixel,
+		pixels
+	};
 }

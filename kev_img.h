@@ -1,5 +1,8 @@
-#include "stdio.h"
-#include "stdlib.h"
+#define _POSIX_C_SOURCE 199309L
+#include <stdio.h>
+
+#include <stdint.h>
+#include <stdlib.h>
 #pragma pack(push, 1)
 typedef struct
 {
@@ -16,4 +19,12 @@ typedef struct
 	char bpp;
 	char image_descriptor;
 } kev_img_tga_header;
-char *read_tga_pixel_data(char * filename);
+
+typedef struct
+{
+	size_t width;
+	size_t height;
+	size_t bytes_per_pixel;
+	uint32_t *pixels;
+} kev_img;
+kev_img from_tga(char * filename);
