@@ -242,7 +242,23 @@ int run()
 			{
 				if (walls[arena_y][arena_x])
 				{
-					kev_render_rectangle(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, (arena_x + 1) * grid_size_x, (arena_y + 1) * grid_size_y, white);
+					if (arena_y == 0 || !walls[arena_y - 1][arena_x])
+					{
+						kev_render_line(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, (arena_x + 1) * grid_size_x, arena_y * grid_size_y, white);
+					}
+					if (arena_x == 0 || !walls[arena_y][arena_x - 1])
+					{
+						kev_render_line(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, arena_x  * grid_size_x, (arena_y + 1) * grid_size_y, white);
+					}
+					if (arena_y == (ARENA_HEIGHT - 1) || !walls[arena_y + 1][arena_x])
+					{
+						kev_render_line(render_buffer, arena_x * grid_size_x, (arena_y + 1) * grid_size_y, (arena_x + 1) * grid_size_x, (arena_y + 1) * grid_size_y, white);
+					}
+					if (arena_x == (ARENA_WIDTH - 1) || !walls[arena_y][arena_x + 1])
+					{
+						kev_render_line(render_buffer, (arena_x + 1) * grid_size_x, arena_y * grid_size_y, (arena_x + 1)  * grid_size_x, (arena_y + 1) * grid_size_y, white);
+					}
+					//kev_render_rectangle(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, (arena_x + 1) * grid_size_x, (arena_y + 1) * grid_size_y, white);
 				}
 			}
 		}
