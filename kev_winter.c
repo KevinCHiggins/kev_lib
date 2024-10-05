@@ -142,6 +142,7 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 
 		redraw(win);
 		}
+	break;
 	case WM_MOUSEMOVE:
 		{
 
@@ -153,6 +154,7 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 		redraw(win);
 
 		}
+	break;
 	case WM_KEYDOWN:
 		{
 			if (uint_param)
@@ -160,9 +162,12 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 				enum Keycode kev_win_keycode = windows_virtual_keycodes_map[uint_param];
 				win->event_list_start = kev_win_queue_new_event(KEYPRESS, kev_win_keycode);
 				is_pressed[kev_win_keycode] = true;
+				printf("Win: %u, kev_win: %d to %d\n", uint_param, kev_win_keycode, is_pressed[kev_win_keycode]);
+				printf("Keycode UP DOWN LEFT RIGHT %d %d %d %d \n", KEYCODE_UP, KEYCODE_DOWN, KEYCODE_LEFT, KEYCODE_RIGHT);
 
 			}
 		}
+	break;
 	case WM_KEYUP:
 		{
 			if (uint_param)
@@ -170,6 +175,7 @@ kev_win *win = (kev_win*)GetWindowLongPtr(handle, GWLP_USERDATA);
 				enum Keycode kev_win_keycode = windows_virtual_keycodes_map[uint_param];
 				win->event_list_start = kev_win_queue_new_event(KEYRELEASE, kev_win_keycode);
 				is_pressed[kev_win_keycode] = false;
+				printf("Is released %d\n", kev_win_keycode);
 			}
 		}
 	break;

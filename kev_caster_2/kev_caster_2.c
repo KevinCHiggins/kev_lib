@@ -64,18 +64,22 @@ void update_player()
 {
 	if (kev_win_is_pressed(KEYCODE_RIGHT))
 	{
+		printf("Right\n");
 		player_rads -= 0.008;
 	}
 	if (kev_win_is_pressed(KEYCODE_LEFT))
 	{
+		printf("Left\n");
 		player_rads += 0.008;
 	}
 	if (kev_win_is_pressed(KEYCODE_UP) && player_vel < player_max_vel)
 	{
+		printf("Up\n");
 		player_vel += player_acc;
 	}
 	if (kev_win_is_pressed(KEYCODE_DOWN) && player_vel > (0 - player_max_vel))
 	{
+		printf("Down\n");
 		player_vel -= player_acc;
 	}
 	player_vel = player_vel * 0.75;
@@ -222,8 +226,6 @@ int run()
 	unsigned int white = kev_render_rgb(199, 199, 199);
 	while (1)
 	{
-		
-		update_player();
 		memset(&buff, 0, WIDTH * HEIGHT * sizeof(uint32_t));
 		fill_slice_heights();
 		int horizon_y = HEIGHT / 2;
@@ -273,6 +275,8 @@ int run()
 		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, white);
 		kev_render_line(render_buffer, left_x * grid_size_x, left_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, white);
 		kev_win_update_events(&win);
+		
+		update_player();
 		frame_time = regulate_frame_time(FRAME_TIME_NS);
 
 	}
@@ -288,7 +292,11 @@ void sleep_approx_ns(int64_t ns)
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, int n_cmd_show)
 {
-
+	FILE* fp;
+	AllocConsole();
+	freopen_s(&fp, "CONIN$", "r", stdin);
+	freopen_s(&fp, "CONOUT$", "w", stdout);
+	freopen_s(&fp, "CONOUT$", "w", stderr);
 	return run();
 
 }
