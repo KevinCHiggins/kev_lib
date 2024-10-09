@@ -26,6 +26,7 @@ kev_perf_timing timing;
 char title[] = "kev_caster_2";
 
 int slice_heights[WIDTH];
+float slice_texture_offset[WIDTH];
 double ray_rads[WIDTH];
 int walls[ARENA_WIDTH][ARENA_WIDTH] = {
 	{1, 1, 1, 1, 1, 1, 1, 1},
@@ -104,7 +105,7 @@ void update_player()
 
 
 
-double dist_to_wall(double ang, double player_x, double player_y)
+double dist_to_wall(double ang, double player_x, double player_y, float *across)
 {
 	int player_x_floor = (int)floor(player_x);
 	int player_y_floor = (int)floor(player_y);
@@ -149,13 +150,21 @@ double dist_to_wall(double ang, double player_x, double player_y)
 		if (ray_dist_to_ns > ray_dist_to_we)
 		{
 			y_crossed += y_inc;
-			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed)) return ray_dist_to_we;
+			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed))
+				{
+					*across = ray_dist_to_we;
+					return ray_dist_to_we;
+				}
 			ray_dist_to_we += we_crossing_dist;
 		}
 		else
 		{
 			x_crossed += x_inc;
-			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed)) return ray_dist_to_ns;
+			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed))
+			{
+				*across = ray_dist_to_ns;
+				return ray_dist_to_ns;
+			}
 			ray_dist_to_ns += ns_crossing_dist;
 		}
 	}
@@ -165,8 +174,10 @@ void fill_slice_heights()
 {
 	for (int i = 0; i < WIDTH; i++)
 	{
-		double dist = dist_to_wall(player_rads + ray_rads[i], player_x, player_y);
+		float across = 0;
+		double dist = dist_to_wall(player_rads + ray_rads[i], player_x, player_y, &across);
 		slice_heights[i] = (HEIGHT / 2) / (dist * cos(0 - ray_rads[i]));
+		slice_texture_offset[i] = across;
 	}
 }
 
@@ -193,6 +204,26 @@ void init()
 		ang_rads -= step_rads;
 	}
 	printf("%f", ray_rads[319]);
+}
+
+void rotate_point(float *x, float *y, float ang)
+{
+	float c = cos(ang);
+	float s = sin(ang);
+	float temp;
+	temp = c * *x - s * *y;
+	*y = s **x + c * *y;
+	*x = temp;
+}
+void draw_line_relative_to_player(kev_render_buffer buff, float x1, float y1, float x2, float y2, unsigned int rgb)
+{
+	x1 = x1 - player_x;
+	y1 = y1 - player_y;
+	x2 = x2 - player_x;
+	y2 = y2 - player_y;
+	rotate_point(&x1, &y1, player_rads - M_PI / 2);
+	rotate_point(&x2, &y2, player_rads - M_PI / 2);
+	kev_render_line(buff, (x1 * 40) + (WIDTH / 2), (y1 * 40) + (HEIGHT / 2), (x2 * 40) + (WIDTH / 2), (y2 * 40) + (HEIGHT / 2), rgb);
 }
 
 int run()
@@ -232,7 +263,8 @@ int run()
 
 		for (int i = 0; i < WIDTH; i++)
 		{
-			kev_render_vert_line(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], blueish);
+			unsigned int rgb = kev_render_rgb(10, 20, (int)(slice_texture_offset[i] * 20));
+			kev_render_vert_line(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], rgb);
 		}
 		
 
@@ -246,19 +278,19 @@ int run()
 				{
 					if (arena_y == 0 || !walls[arena_y - 1][arena_x])
 					{
-						kev_render_line(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, (arena_x + 1) * grid_size_x, arena_y * grid_size_y, white);
+						draw_line_relative_to_player(render_buffer, arena_x, arena_y, (arena_x + 1), arena_y, white);
 					}
 					if (arena_x == 0 || !walls[arena_y][arena_x - 1])
 					{
-						kev_render_line(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, arena_x  * grid_size_x, (arena_y + 1) * grid_size_y, white);
+						draw_line_relative_to_player(render_buffer, arena_x, arena_y, arena_x, (arena_y + 1), white);
 					}
 					if (arena_y == (ARENA_HEIGHT - 1) || !walls[arena_y + 1][arena_x])
 					{
-						kev_render_line(render_buffer, arena_x * grid_size_x, (arena_y + 1) * grid_size_y, (arena_x + 1) * grid_size_x, (arena_y + 1) * grid_size_y, white);
+						draw_line_relative_to_player(render_buffer, arena_x, (arena_y + 1), (arena_x + 1), (arena_y + 1), white);
 					}
 					if (arena_x == (ARENA_WIDTH - 1) || !walls[arena_y][arena_x + 1])
 					{
-						kev_render_line(render_buffer, (arena_x + 1) * grid_size_x, arena_y * grid_size_y, (arena_x + 1)  * grid_size_x, (arena_y + 1) * grid_size_y, white);
+						draw_line_relative_to_player(render_buffer, (arena_x + 1), arena_y, (arena_x + 1), (arena_y + 1), white);
 					}
 					//kev_render_rectangle(render_buffer, arena_x * grid_size_x, arena_y * grid_size_y, (arena_x + 1) * grid_size_x, (arena_y + 1) * grid_size_y, white);
 				}
@@ -271,9 +303,10 @@ int run()
 		double right_x = player_x + cos(ang_to_right);
 		double right_y = player_y + 0 - sin(ang_to_right);
 
-		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, left_x * grid_size_x, left_y * grid_size_y, white);
-		kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, white);
-		kev_render_line(render_buffer, left_x * grid_size_x, left_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, white);
+		kev_render_line(render_buffer, WIDTH / 2, HEIGHT / 2, WIDTH / 2 + 30, HEIGHT / 2 - 30 * 1.732, white);
+		kev_render_line(render_buffer, WIDTH / 2, HEIGHT / 2, WIDTH / 2 - 30, HEIGHT / 2 - 30 * 1.732, white);
+		//kev_render_line(render_buffer, player_x * grid_size_x, player_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, white);
+		//kev_render_line(render_buffer, left_x * grid_size_x, left_y * grid_size_y, right_x * grid_size_x, right_y * grid_size_y, white);
 		kev_win_update_events(&win);
 		
 		update_player();
