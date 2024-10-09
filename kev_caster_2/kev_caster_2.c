@@ -12,6 +12,10 @@
 #define ARENA_WIDTH 8
 #define ARENA_HEIGHT 8
 
+#define PLAYER_TURN_RATE 0.016
+#define PLAYER_MAX_VEL 0.01
+#define PLAYER_ACCEL 0.02
+
 #ifndef M_PI
 #    define M_PI 3.14159265358979323846
 #endif
@@ -40,9 +44,7 @@ int walls[ARENA_WIDTH][ARENA_WIDTH] = {
 };
 float player_x = 4.5;
 float player_y = 4.5;
-float player_acc = 0.01;
 float player_vel = 0.000;
-float player_max_vel = 0.005;
 double player_rads = 5.0;
 double two_pi = M_PI * 2;
 double rads_to_degrees(double rads)
@@ -66,22 +68,22 @@ void update_player()
 	if (kev_win_is_pressed(KEYCODE_RIGHT))
 	{
 		printf("Right\n");
-		player_rads -= 0.008;
+		player_rads -= PLAYER_TURN_RATE;
 	}
 	if (kev_win_is_pressed(KEYCODE_LEFT))
 	{
 		printf("Left\n");
-		player_rads += 0.008;
+		player_rads += PLAYER_TURN_RATE;
 	}
-	if (kev_win_is_pressed(KEYCODE_UP) && player_vel < player_max_vel)
+	if (kev_win_is_pressed(KEYCODE_UP) && player_vel < PLAYER_MAX_VEL)
 	{
 		printf("Up\n");
-		player_vel += player_acc;
+		player_vel += PLAYER_ACCEL;
 	}
-	if (kev_win_is_pressed(KEYCODE_DOWN) && player_vel > (0 - player_max_vel))
+	if (kev_win_is_pressed(KEYCODE_DOWN) && player_vel > (0 - PLAYER_MAX_VEL))
 	{
 		printf("Down\n");
-		player_vel -= player_acc;
+		player_vel -= PLAYER_ACCEL;
 	}
 	player_vel = player_vel * 0.75;
 
