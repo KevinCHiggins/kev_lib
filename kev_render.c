@@ -192,16 +192,36 @@ void kev_render_rectangle(kev_render_buffer buff, int x1, int y1, int x2, int y2
     kev_render_vert_line(buff, x1, y2, y1, rgb);
 }
 
-void kev_render_img(kev_render_buffer buff, int x, int y, int width, int height, uint32_t *pixels)
+void kev_render_img(kev_render_buffer buff, int x, int y, int width, int height, kev_render_buffer img)
 {
     for (int row = y; row < y + height; row++)
     {
         for (int pixel = x; pixel < x + width; pixel++)
         {
-            buff.buffer[(row * buff.width) + pixel] = pixels[(row - y) * width + (pixel - x)];
+            buff.buffer[(row * buff.width) + pixel] = img.buffer[(row - y) * width + (pixel - x)];
         }
     }
 
+}
+
+void kev_render_stretched_img_slice(kev_render_buffer buff, int x, int top_y, int bottom_y, float offset, kev_render_buffer img)
+{
+    float height_stretched = bottom_y - top_y + 1; // paint last pixel
+    // ignoring that sampling points should be mid-pixel for now
+    // would also be nice do make it integer to match the Bresenham
+    float fraction = img.height / height_stretched;
+    float vertical_offset = 0.0;
+    offset = img.width * offset;
+    for (; top_y <= bottom_y; top_y++)
+    {
+
+        vertical_offset += fraction;
+        if (top_y >= 0 & top_y < buff.height) // TO-DO only do necessary loop iterations
+        {
+            kev_render_point(buff, x, top_y, img.buffer[(int)(vertical_offset * img.width) + (int)offset]);
+        }
+        
+    }
 }
 
 void kev_render_digit(kev_render_buffer buff, int x, int y, int width, int height, char digit, unsigned int rgb)

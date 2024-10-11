@@ -1,6 +1,6 @@
 #include "kev_img.h"
 
-kev_img kev_img_from_tga(char *filename)
+kev_render_buffer kev_img_from_tga(char *filename)
 {
 	FILE *fptr = fopen(filename, "r");
 	printf("Size of struct %ld\n", sizeof(kev_img_tga_header));
@@ -10,10 +10,12 @@ kev_img kev_img_from_tga(char *filename)
 			exit(1);
 		}
 	kev_img_tga_header header;
-	int num_objects_read = fread(&header, 18, 1, fptr);
+	int num_objects_read = fread(&header, 1, 18, fptr);
 	if (num_objects_read != 18)
 	{
+		printf("%d", num_objects_read);
 		printf("Failed to read TGA image header\n");
+		exit(1);
 	}
 	printf("Descriptor length %d\nColormap type %d\nType %d\nColormap origin %d\nColormap_length %d\nColormap depth %d\nX %d\nY %d\nW %d\nH %d\nBpp %d\n", header.image_descriptor_length, header.colormap_type, header.type, header.colormap_origin, header.colormap_length, header.colormap_depth, header.x_origin, header.y_origin, header.width, header.height, header.bpp);
 	if (header.type != 2)
@@ -30,10 +32,11 @@ kev_img kev_img_from_tga(char *filename)
 
 
 	fseek(fptr, header.image_descriptor_length, SEEK_CUR);
-	num_objects_read = fread(raw_pixels, header.width * header.height * bytes_per_pixel, 1, fptr);
+	num_objects_read = fread(raw_pixels, 1, header.width * header.height * bytes_per_pixel, fptr);
 	if (num_objects_read != header.width * header.height * bytes_per_pixel)
 	{
 		printf("Failed to read TGA image data\n");
+		exit(1);
 	}
 	if (bytes_per_pixel == 3)
 	{
@@ -48,7 +51,7 @@ kev_img kev_img_from_tga(char *filename)
 		printf("TGA pixel data packing other than 3-byte not implemented\n");
 		exit(1);
 	}
-	return (kev_img){
+	return (kev_render_buffer){
 		(size_t) header.width,
 		(size_t) header.height,
 		bytes_per_pixel,

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "kev_render.h"
 #pragma pack(push, 1)
 typedef struct
 {
@@ -20,11 +21,5 @@ typedef struct
 	char image_descriptor;
 } kev_img_tga_header;
 
-typedef struct
-{
-	size_t width;
-	size_t height;
-	size_t bytes_per_pixel;
-	uint32_t *pixels;
-} kev_img;
-kev_img kev_img_from_tga(char * filename);
+
+kev_render_buffer kev_img_from_tga(char * filename);

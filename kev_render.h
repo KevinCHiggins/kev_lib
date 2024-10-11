@@ -23,7 +23,8 @@ void kev_render_vert_line(kev_render_buffer buff, int x, int y1, int y2, unsigne
 
 void kev_render_line(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb);
 void kev_render_rectangle(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb);
-void kev_render_img(kev_render_buffer buff, int x1, int y1, int width, int height, uint32_t *pixels);
+void kev_render_img(kev_render_buffer buff, int x1, int y1, int width, int height, kev_render_buffer img);
+void kev_render_stretched_img_slice(kev_render_buffer buff, int x, int top_y, int bottom_y, float offset, kev_render_buffer img);
 void kev_render_int(kev_render_buffer buff, int x, int y, int digit_width, int digit_height, int number, unsigned int rgb);
 unsigned int kev_render_rgb(unsigned char r, unsigned char g, unsigned char b);
 void kev_render_debug_rgb(unsigned int rgb);

@@ -28,7 +28,7 @@ void sleep_approx_ns(int64_t target_time_ns);
 #define FRAME_TIME_NS (1000000000 / FRAME_RATE)
 kev_perf_timing timing;
 
-kev_img texture;
+kev_render_buffer texture;
 char title[] = "kev_caster_2";
 
 int slice_heights[WIDTH];
@@ -107,8 +107,6 @@ void update_player()
 	player_y += dy;
 }
 
-
-
 double dist_to_wall(double ang, double player_x, double player_y, float *across)
 {
 	int player_x_floor = (int)floor(player_x);
@@ -156,7 +154,11 @@ double dist_to_wall(double ang, double player_x, double player_y, float *across)
 			y_crossed += y_inc;
 			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed))
 				{
-					*across = ray_dist_to_we;
+					float intersection_x = player_x_floor + x_crossed;
+					float m = tan(ang);
+					float y = m * intersection_x;
+					*across = fmod(y, 1.0);
+					printf("%f keve", *across);
 					return ray_dist_to_we;
 				}
 			ray_dist_to_we += we_crossing_dist;
@@ -166,7 +168,10 @@ double dist_to_wall(double ang, double player_x, double player_y, float *across)
 			x_crossed += x_inc;
 			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed))
 			{
-				*across = ray_dist_to_ns;
+					float intersection_y = player_y_floor + y_crossed;
+					float m = tan(ang);
+					float x = intersection_y / m;
+					*across = fmod(x, 1.0);
 				return ray_dist_to_ns;
 			}
 			ray_dist_to_ns += ns_crossing_dist;
@@ -269,7 +274,10 @@ int run()
 		for (int i = 0; i < WIDTH; i++)
 		{
 			unsigned int rgb = kev_render_rgb(10, 20, (int)(slice_texture_offset[i] * 20));
-			kev_render_vert_line(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], rgb);
+			// kev_render_vert_line(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], rgb);
+			//printf("i %d top %d bot %d", i, horizon_y - slice_heights[i], horizon_y + slice_heights[i]);
+			//exit(1);
+			kev_render_stretched_img_slice(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], slice_texture_offset[i], texture);
 		}
 		
 

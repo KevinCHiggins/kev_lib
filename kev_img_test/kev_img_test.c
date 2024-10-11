@@ -14,7 +14,7 @@ uint32_t buff[WIDTH * HEIGHT];
 char title[] = "kev_render Test";
 kev_win win;
 kev_render_buffer render_buffer;
-kev_img img;
+kev_render_buffer img;
 unsigned int white;
 unsigned int reddish;
 unsigned int cyanish;
@@ -40,7 +40,7 @@ void test_img()
 	int x = 20;
 	int y = 20;
 	img = kev_img_from_tga("32x32.tga");
-	kev_render_img(render_buffer, x, y, 32, 32, img.pixels);
+	kev_render_img(render_buffer, x, y, 32, 32, img);
 	check_point(x, y, kev_render_rgb(31, 249, 251));
 	check_point(x + 1, y, kev_render_rgb(1, 1, 1));
 	check_point(x + 2, y, kev_render_rgb(129, 106, 162));
