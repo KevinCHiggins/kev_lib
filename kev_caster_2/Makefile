@@ -7,8 +7,8 @@ else
 	targ = multi
 endif
 
-kev_caster_2: kev_caster_2.c ../kev_winter.o ../kev_perf_timer.o ../kev_render.o
-	$(CC) ../kev_winter.o ../kev_perf_timer.o ../kev_render.o kev_caster_2.c -I "../" -o kev_caster_2 $(libs)
+kev_caster_2: kev_caster_2.c ../kev_winter.o ../kev_perf_timer.o ../kev_render.o ../kev_img.o
+	$(CC) ../kev_winter.o ../kev_perf_timer.o ../kev_render.o ../kev_img.o kev_caster_2.c -I "../" -o kev_caster_2 $(libs)
 
 ../kev_winter.o: ../kev_winter.c ../kev_winter.h
 	$(CC) ../kev_winter.c -c -o ../kev_winter.o
@@ -18,3 +18,6 @@ kev_caster_2: kev_caster_2.c ../kev_winter.o ../kev_perf_timer.o ../kev_render.o
 
 ../kev_perf_timer.o: ../kev_perf_timer.c ../kev_perf_timer.h
 	$(CC) ../kev_perf_timer.c -c -o ../kev_perf_timer.o
+
+../kev_img.o: ../kev_img.c ../kev_img.h
+	$(CC) ../kev_img.c -c -o ../kev_img.o

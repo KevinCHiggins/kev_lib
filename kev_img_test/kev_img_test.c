@@ -21,9 +21,6 @@ unsigned int cyanish;
 
 void setup()
 {
-	white = kev_render_rgb(255, 255, 255);
-	cyanish = kev_render_rgb(31, 249, 251);
-	reddish = kev_render_rgb(160, 5, 75);
 	render_buffer = (kev_render_buffer) {
 		.width = WIDTH,
 		.height = HEIGHT,
@@ -42,7 +39,7 @@ void test_img()
 
 	int x = 20;
 	int y = 20;
-	img = from_tga("32x32.tga");
+	img = kev_img_from_tga("32x32.tga");
 	kev_render_img(render_buffer, x, y, 32, 32, img.pixels);
 	check_point(x, y, kev_render_rgb(31, 249, 251));
 	check_point(x + 1, y, kev_render_rgb(1, 1, 1));

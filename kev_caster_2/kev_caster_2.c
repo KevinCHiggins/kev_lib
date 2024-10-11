@@ -4,6 +4,7 @@
 #include "kev_winter.h"
 #include "kev_perf_timer.h"
 #include "kev_render.h"
+#include "kev_img.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -27,6 +28,7 @@ void sleep_approx_ns(int64_t target_time_ns);
 #define FRAME_TIME_NS (1000000000 / FRAME_RATE)
 kev_perf_timing timing;
 
+kev_img texture;
 char title[] = "kev_caster_2";
 
 int slice_heights[WIDTH];
@@ -226,6 +228,7 @@ int run()
 	unsigned int blueish = kev_render_rgb(30, 70, 150);
 	unsigned int reddish = kev_render_rgb(160, 50, 10);
 	unsigned int white = kev_render_rgb(199, 199, 199);
+	texture = kev_img_from_tga("32x32.tga");
 	while (1)
 	{
 		memset(&buff, 0, WIDTH * HEIGHT * sizeof(uint32_t));

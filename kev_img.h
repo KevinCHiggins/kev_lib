@@ -27,4 +27,4 @@ typedef struct
 	size_t bytes_per_pixel;
 	uint32_t *pixels;
 } kev_img;
-kev_img from_tga(char * filename);
+kev_img kev_img_from_tga(char * filename);
