@@ -109,6 +109,8 @@ void update_player()
 
 double dist_to_wall(double ang, double player_x, double player_y, float *across)
 {
+	float m = tan(ang);
+	float c = player_y - (m * player_x);
 	int player_x_floor = (int)floor(player_x);
 	int player_y_floor = (int)floor(player_y);
 	double ns_crossing_dist = fabs(1 / cos(ang));
@@ -154,11 +156,9 @@ double dist_to_wall(double ang, double player_x, double player_y, float *across)
 			y_crossed += y_inc;
 			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed))
 				{
-					float intersection_x = player_x_floor + x_crossed;
-					float m = tan(ang);
-					float y = m * intersection_x;
-					*across = fmod(y, 1.0);
-					printf("%f keve", *across);
+					float intersection_y = player_y_floor + y_crossed;
+					float x = (intersection_y + c) / m;
+					*across = fmod(x, 1.0);
 					return ray_dist_to_we;
 				}
 			ray_dist_to_we += we_crossing_dist;
@@ -168,10 +168,12 @@ double dist_to_wall(double ang, double player_x, double player_y, float *across)
 			x_crossed += x_inc;
 			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed))
 			{
-					float intersection_y = player_y_floor + y_crossed;
-					float m = tan(ang);
-					float x = intersection_y / m;
-					*across = fmod(x, 1.0);
+					float intersection_x = player_x_floor + x_crossed;
+					float y = m * intersection_x + c;
+					*across = fmod(y, 1.0);
+					printf("%f keve", *across);
+
+
 				return ray_dist_to_ns;
 			}
 			ray_dist_to_ns += ns_crossing_dist;
