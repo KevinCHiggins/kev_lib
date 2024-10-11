@@ -218,7 +218,7 @@ void kev_render_stretched_img_slice(kev_render_buffer buff, int x, int top_y, in
         vertical_offset += fraction;
         if (top_y >= 0 & top_y < buff.height) // TO-DO only do necessary loop iterations
         {
-            kev_render_point(buff, x, top_y, img.buffer[(int)(vertical_offset * img.width) + (int)offset]);
+            kev_render_point(buff, x, top_y, kev_render_rgb(vertical_offset * (255 /32), 40, offset * 2));// img.buffer[(int)(vertical_offset * img.width) + (int)offset]);
         }
         
     }
