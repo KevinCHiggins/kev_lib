@@ -206,20 +206,21 @@ void kev_render_img(kev_render_buffer buff, int x, int y, int width, int height,
 
 void kev_render_stretched_img_slice(kev_render_buffer buff, int x, int top_y, int bottom_y, float offset, kev_render_buffer img)
 {
-    float height_stretched = bottom_y - top_y + 1; // paint last pixel
+    float height_stretched = bottom_y - top_y;
     // ignoring that sampling points should be mid-pixel for now
     // would also be nice do make it integer to match the Bresenham
     float fraction = img.height / height_stretched;
     float vertical_offset = 0.0;
     offset = img.width * offset;
-    for (; top_y <= bottom_y; top_y++)
+    for (; top_y < bottom_y; top_y++)
     {
 
-        vertical_offset += fraction;
+
         if (top_y >= 0 & top_y < buff.height) // TO-DO only do necessary loop iterations
         {
-            kev_render_point(buff, x, top_y, kev_render_rgb(vertical_offset * (255 /32), 40, offset * 2));// img.buffer[(int)(vertical_offset * img.width) + (int)offset]);
+            kev_render_point(buff, x, top_y, img.buffer[(int)(vertical_offset) * img.width + (int)offset]);
         }
+        vertical_offset += fraction;
         
     }
 }
