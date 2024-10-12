@@ -69,22 +69,18 @@ void update_player()
 {
 	if (kev_win_is_pressed(KEYCODE_RIGHT))
 	{
-		printf("Right\n");
 		player_rads -= PLAYER_TURN_RATE;
 	}
 	if (kev_win_is_pressed(KEYCODE_LEFT))
 	{
-		printf("Left\n");
 		player_rads += PLAYER_TURN_RATE;
 	}
 	if (kev_win_is_pressed(KEYCODE_UP) && player_vel < PLAYER_MAX_VEL)
 	{
-		printf("Up\n");
 		player_vel += PLAYER_ACCEL;
 	}
 	if (kev_win_is_pressed(KEYCODE_DOWN) && player_vel > (0 - PLAYER_MAX_VEL))
 	{
-		printf("Down\n");
 		player_vel -= PLAYER_ACCEL;
 	}
 	player_vel = player_vel * 0.75;
@@ -92,6 +88,10 @@ void update_player()
 	while (player_rads >= two_pi)
 	{
 		player_rads -= two_pi;
+	}
+	while (player_rads < 0)
+	{
+		player_rads += two_pi;
 	}
 	float dx = cos(player_rads) * player_vel;
 	float dy = (0 - sin(player_rads)) * player_vel;
@@ -120,6 +120,7 @@ double dist_to_wall(double ang, double player_x, double player_y, float *across)
 	int y_crossed = 0;
 	int x_inc;
 	int y_inc;
+	ang = fmod(ang + (M_PI * 2), M_PI * 2); // fit angles in range 0..M_PI*2 to avoid mirroring glitch
 	if (ang < M_PI / 2)
 	{
 		ray_dist_to_ns = ns_crossing_dist * (1 - (fmod(player_x, 1.0)));
@@ -156,9 +157,12 @@ double dist_to_wall(double ang, double player_x, double player_y, float *across)
 			y_crossed += y_inc;
 			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed))
 				{
-					float intersection_y = player_y_floor + y_crossed;
-					float x = (c - intersection_y) / m;
-					*across = fabs(fmod(x, 1.0));
+					float x = player_x + (ray_dist_to_we / ns_crossing_dist * x_inc);
+					*across = fmod(x, 1.0);
+					if (y_inc == -1)
+					{
+						*across = 1.0 - *across;
+					}
 					return ray_dist_to_we;
 				}
 			ray_dist_to_we += we_crossing_dist;
@@ -168,10 +172,12 @@ double dist_to_wall(double ang, double player_x, double player_y, float *across)
 			x_crossed += x_inc;
 			if (is_wall(player_x_floor + x_crossed, player_y_floor + y_crossed))
 			{
-				float intersection_x = player_x_floor + x_crossed;
-				float y = m * intersection_x + c;
-				*across = fabs(fmod(y, 1.0));
-
+				float y = player_y + (ray_dist_to_ns / we_crossing_dist * y_inc);
+				*across = fmod(y, 1.0);
+				if (x_inc == 1)
+				{
+					*across = 1.0 - *across;
+				}
 
 				return ray_dist_to_ns;
 			}
@@ -213,7 +219,7 @@ void init()
 		ray_rads[i] = ang_rads;
 		ang_rads -= step_rads;
 	}
-	printf("%f", ray_rads[319]);
+	printf("%f", ray_rads[630]);
 }
 
 void rotate_point(float *x, float *y, float ang)
@@ -275,7 +281,7 @@ int run()
 		for (int i = 0; i < WIDTH; i++)
 		{
 			unsigned int rgb = kev_render_rgb(10, 20, (int)(slice_texture_offset[i] * 20));
-			// kev_render_vert_line(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], rgb);
+			//kev_render_vert_line(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], rgb);
 			//printf("i %d top %d bot %d", i, horizon_y - slice_heights[i], horizon_y + slice_heights[i]);
 			//exit(1);
 			kev_render_stretched_img_slice(render_buffer, i, horizon_y - slice_heights[i], horizon_y + slice_heights[i], slice_texture_offset[i], texture);
