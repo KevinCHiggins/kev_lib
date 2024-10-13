@@ -17,10 +17,16 @@ Projects:
 - kev_caster_2: ray caster
 - kev_winter_example: animation example
 
-Screenshots:
+Screenshots of glitches:
+
 ![Screenshot of raycaster with glitch at tops of walls](kev_caster_2_overrun.png)
+
 ![Screenshot of raycaster deep reddish gradient on walls](kev_caster_2_glow.png)
+
 ![Screenshot of raycaster with furry-looking glitch at tops of walls](kev_caster_2_fringe.png)
+
+Here it is actually working (boring):
+
 ![Screenshot of raycaster with lo-res brownish stone texture on walls](kev_caster_2_texture.png)
 
 To-do:
