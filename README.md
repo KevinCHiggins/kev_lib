@@ -18,10 +18,10 @@ Projects:
 - kev_winter_example: animation example
 
 Screenshots:
-<img src="kev_caster_2_glow.png">
-<img src="kev_caster_2_texture.png">
-<img src="kev_caster_2_fringe.png">
-<img src="kev_caster_2_overrun.png">
+![Screenshot of raycaster with glitch at tops of walls](http://github.com/KevinCHiggins/kev_lib/blob/main/kev_caster_2_overrun.png)
+![Screenshot of raycaster deep reddish gradient on walls](http://github.com/KevinCHiggins/kev_lib/blo/mainb/kev_caster_2_glow.png)
+![Screenshot of raycaster with furry-looking glitch at tops of walls](http://github.com/KevinCHiggins/kev_lib/blob/main/kev_caster_2_fringe.png)
+![Screenshot of raycaster with lo-res brownish stone texture on walls](http://github.com/KevinCHiggins/kev_lib/blob/main/kev_caster_2_texture.png)
 
 To-do:
 - Fix bug where the byte 1Ax crashes TGA loading
