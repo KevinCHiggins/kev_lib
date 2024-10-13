@@ -17,11 +17,7 @@ Projects:
 - kev_caster_2: ray caster
 - kev_winter_example: animation example
 
-Screenshots of glitches:
-
-![Screenshot of raycaster with glitch at tops of walls](kev_caster_2_overrun.png)
-
-![Screenshot of raycaster deep reddish gradient on walls](kev_caster_2_glow.png)
+Here's a cool glitch in the raycaster:
 
 ![Screenshot of raycaster with furry-looking glitch at tops of walls](kev_caster_2_fringe.png)
 
