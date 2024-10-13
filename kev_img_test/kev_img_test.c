@@ -39,7 +39,7 @@ void test_img()
 
 	int x = 20;
 	int y = 20;
-	img = kev_img_from_tga("32x32.tga");
+	img = kev_img_from_tga("wall32x32a.tga");
 	kev_render_img(render_buffer, x, y, 32, 32, img);
 	check_point(x, y, kev_render_rgb(31, 249, 251));
 	check_point(x + 1, y, kev_render_rgb(1, 1, 1));

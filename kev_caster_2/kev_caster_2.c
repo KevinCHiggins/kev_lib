@@ -271,7 +271,7 @@ int run()
 	unsigned int blueish = kev_render_rgb(30, 70, 150);
 	unsigned int reddish = kev_render_rgb(160, 50, 10);
 	unsigned int white = kev_render_rgb(199, 199, 199);
-	texture = kev_img_from_tga("32x32.tga");
+	texture = kev_img_from_tga("wall32x32a.tga");
 	while (1)
 	{
 		memset(&buff, 0, WIDTH * HEIGHT * sizeof(uint32_t));

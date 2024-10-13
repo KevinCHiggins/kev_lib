@@ -17,7 +17,14 @@ Projects:
 - kev_caster_2: ray caster
 - kev_winter_example: animation example
 
+Screenshots:
+<img src="kev_caster_2_glow.png">
+<img src="kev_caster_2_texture.png">
+<img src="kev_caster_2_fringe.png">
+<img src="kev_caster_2_overrun.png">
+
 To-do:
+- Fix bug where the byte 1Ax crashes TGA loading
 - Harmonise whitespace
 - Be consistent with built-in type usage (uint32_t/unsigned int, float/double)
 - Extract kev_caster_2 to another library (so it can be tested similarly to the others)
