@@ -1,8 +1,8 @@
 #include "kev_img.h"
-#include <windows.h>
+
 kev_render_buffer kev_img_from_tga(char *filename)
 {
-	FILE *fptr = fopen(filename, "r");
+	FILE *fptr = fopen(filename, "rb");
 	printf("Size of struct %ld\n", sizeof(kev_img_tga_header));
 	if (fptr == NULL)
 		{

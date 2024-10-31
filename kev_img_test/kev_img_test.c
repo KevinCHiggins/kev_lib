@@ -8,7 +8,7 @@
 
 #define WIDTH 800
 #define HEIGHT 600
-#define SCALE 2
+#define SCALE 1
 
 uint32_t buff[WIDTH * HEIGHT];
 char title[] = "kev_render Test";
