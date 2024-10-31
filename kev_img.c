@@ -32,10 +32,10 @@ kev_render_buffer kev_img_from_tga(char *filename)
 
 
 	fseek(fptr, header.image_descriptor_length, SEEK_CUR);
-	num_objects_read = fread(raw_pixels, 1, header.width * header.height * bytes_per_pixel, fptr);
+	num_objects_read = fread(raw_pixels, 1, num_pixels * bytes_per_pixel, fptr);
 	if (num_objects_read != header.width * header.height * bytes_per_pixel)
 	{
-		printf("Read %d objects, expected %d", num_objects_read, header.width * header.height * bytes_per_pixel);
+		printf("Read %d objects, expected %zd", num_objects_read, header.width * header.height * bytes_per_pixel);
 		printf("Failed to read TGA image data\n");
 		exit(1);
 	}
