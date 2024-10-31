@@ -6,9 +6,9 @@
 #include "kev_img.h"
 #include "kev_test.h"
 
-#define WIDTH 320
-#define HEIGHT 240
-#define SCALE 4
+#define WIDTH 800
+#define HEIGHT 600
+#define SCALE 2
 
 uint32_t buff[WIDTH * HEIGHT];
 char title[] = "kev_render Test";
@@ -30,16 +30,18 @@ void setup()
 	kev_render_fill(render_buffer, reddish);
 
 }
+
 int check_point(int x, int y, unsigned int rgb)
 {
 	kev_test_assert_true(buff[y * WIDTH + x] == rgb);
 }
+
 void test_img()
 {
+	img = kev_img_from_tga("32x32.tga");
 
-	int x = 20;
-	int y = 20;
-	img = kev_img_from_tga("wall32x32a.tga");
+	int x = 0;
+	int y = 0;
 	kev_render_img(render_buffer, x, y, 32, 32, img);
 	check_point(x, y, kev_render_rgb(31, 249, 251));
 	check_point(x + 1, y, kev_render_rgb(1, 1, 1));
@@ -48,11 +50,28 @@ void test_img()
 	check_point(x + 31, y + 31, kev_render_rgb(65, 231, 238));
 }
 
+void test_img_load_0x1a()
+{
+	img = kev_img_from_tga("test_0x1a.tga");
+
+	int x = 32;
+	int y = 32;
+	kev_render_img(render_buffer, x, y, 1, 1, img);
+	check_point(x, y, kev_render_rgb(26, 26, 26));
+}
+
+void test_img_load_larger()
+{
+	img = kev_img_from_tga("wall.tga");
+
+	int x = 64;
+	int y = 0;
+	kev_render_img(render_buffer, x, y, 512, 512, img);
+	check_point(x, y, kev_render_rgb(124, 120, 121));
+}
+
 int display()
 {
-
-	
-
 	win = (kev_win){
 	.width = WIDTH,
 	.height = HEIGHT,
@@ -65,7 +84,6 @@ int display()
 	
 	while (1)
 	{
-
 		kev_win_update_events(&win);
 
 	}
@@ -74,6 +92,8 @@ int display()
 void run_all_tests()
 {
 	kev_test_run("Drawing image and checking some pixels.", test_img);
+	kev_test_run("Regression of 0x1a being interpreted as EOF in Windows", test_img_load_0x1a);
+	kev_test_run("Load larger image", test_img_load_larger);
 }
 
 #ifdef _WIN32
@@ -90,7 +110,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR args_str, 
 	run_all_tests();
 	puts(kev_test_get_report());
 	return display();
-
 }
 
 
@@ -107,5 +126,5 @@ int main()
 	puts(kev_test_get_report());
 	return display();
 }
-#endif
 
+#endif
