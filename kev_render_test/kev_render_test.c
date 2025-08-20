@@ -7,7 +7,7 @@
 
 #define WIDTH 320
 #define HEIGHT 240
-#define SCALE 1
+#define SCALE 4
 
 uint32_t buff[WIDTH * HEIGHT];
 char title[] = "kev_render Test";
@@ -86,8 +86,8 @@ void test_low_slope_line_pos_x_pos_y()
 {
 	int x1 = 55;
 	int y1 = 5;
-	int x2 = 65;
-	int y2 = 10;
+	int x2 = 75;
+	int y2 = 7;
 	kev_render_line(render_buffer, x1, y1, x2, y2, white);
 	kev_test_assert_true(check_point(x1, y1));
 	kev_test_assert_true(check_point(x2, y2)); // second attempt requires extra point drawn
@@ -224,8 +224,6 @@ int main()
 {
 	setup();
 	run_all_tests();
-
-	puts(kev_test_get_report());
 	return display();
 }
 #endif

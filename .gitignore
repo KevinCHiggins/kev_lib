@@ -3,9 +3,9 @@ kev_dict_test/kev_dict_test
 kev_test_test/kev_test_test
 kev_perf_timer_test/kev_perf_timer_test
 kev_winter_example/kev_winter_example
-kev_winter_example/floats_test
-kev_winter_example/kev_caster_2
-kev_winter_example/kev_render_test
+floats_test/floats_test
+kev_caster_2/kev_caster_2
+kev_render_test/kev_render_test
 *.exe
 
 # object files

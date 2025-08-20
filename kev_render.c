@@ -83,12 +83,12 @@ void kev_render_vert_line(kev_render_buffer buff, int x, int y1, int y2, unsigne
 
 void kev_render_line_low_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
 {
-    int dx = x2 - x1;
-    int dy = y2 - y1;
+    int dx = (x2 - x1) * 2;
+    int dy = (y2 - y1) * 2;
     int y_inc;
     int last_drawn_x = x1;
     if (dx * dy > 0) y_inc = 1; else y_inc = -1;
-    int slope_error = 0;
+    int slope_error = y_inc * dx / 2;
     for (;x1 <= x2; x1++)
     {
         slope_error += dy;
@@ -107,12 +107,12 @@ void kev_render_line_low_slope(kev_render_buffer buff, int x1, int y1, int x2, i
 
 void kev_render_line_high_slope(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
 {
-    int dx = x2 - x1;
-    int dy = y2 - y1;
+    int dx = (x2 - x1) * 2;
+    int dy = (y2 - y1) * 2;
     int x_inc;
     int last_drawn_y = y1;
     if (dx * dy > 0) x_inc = 1; else x_inc = -1;
-    int slope_error = 0;
+    int slope_error = x_inc * dy / 2;
     for (;y1 <= y2; y1++)
     {
         // int y = round(y1 + slope * (x - x1));
