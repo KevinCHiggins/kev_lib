@@ -22,6 +22,7 @@ void kev_render_horiz_line(kev_render_buffer buff, int x1, int x2, int y, unsign
 void kev_render_vert_line(kev_render_buffer buff, int x, int y1, int y2, unsigned int rgb);
 
 void kev_render_line(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb);
+void kev_render_float_line(kev_render_buffer buff, float x1, float y1, float x2, float y2, unsigned int rgb);
 void kev_render_rectangle(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb);
 void kev_render_img(kev_render_buffer buff, int x1, int y1, int width, int height, kev_render_buffer img);
 void kev_render_stretched_img_slice(kev_render_buffer buff, int x, int top_y, int bottom_y, float offset, kev_render_buffer img);

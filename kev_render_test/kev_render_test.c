@@ -15,11 +15,14 @@ kev_win win;
 kev_render_buffer render_buffer;
 unsigned int white;
 unsigned int reddish;
-
+unsigned int blue;
+unsigned int green;
 void setup()
 {
 	white = kev_render_rgb(255, 255, 255);
-	reddish = kev_render_rgb(160, 5, 75);
+	reddish = kev_render_rgb(100, 15, 35);
+	blue = kev_render_rgb(10, 50, 255);
+	green = kev_render_rgb(10, 255, 39);
 	render_buffer = (kev_render_buffer) {
 		.width = WIDTH,
 		.height = HEIGHT,
@@ -40,6 +43,22 @@ void test_points()
 	kev_render_point(render_buffer, x, y, white);
 	kev_test_assert_true(buff[y * WIDTH + x] == white);
 }
+void test_float_line()
+{
+    /*
+    kev_render_float_line(render_buffer, 119.6, 199.6, 140.4, 210.4, white);
+    kev_render_float_line(render_buffer, 140.0, 200.0, 160.0, 210.0, white);
+    kev_render_float_line(render_buffer, 160.4, 200.4, 179.6, 209.6, white);
+    kev_render_float_line(render_buffer, 179.6, 199.6, 199.4, 210.4, white);
+    kev_render_float_line(render_buffer, 200.0, 200.0, 219.0, 210.0, white);
+    */
+
+    kev_render_float_line(render_buffer, 220.4, 200.4, 238.6, 209.6, white);
+    kev_render_float_line(render_buffer, 220.4, 200.4, 239.6, 189.6, green);
+    // kev_render_float_line(render_buffer, 0.0, 211.0, 239.0, 211.0, blue);
+    
+}
+
 void test_horiz_line_pos_x()
 {
 	int x1 = 255;
@@ -193,6 +212,7 @@ int display()
 void run_all_tests()
 {
 	kev_test_run("Drawing points.", test_points);
+	kev_test_run("Drawing float line.", test_float_line);
 	kev_test_run("Low slope line, positive x, positive y", test_low_slope_line_pos_x_pos_y);
 	kev_test_run("Low slope line, negative x, negative y", test_low_slope_line_neg_x_neg_y);
 	kev_test_run("Low slope line, positive x, negative y", test_low_slope_line_pos_x_neg_y);

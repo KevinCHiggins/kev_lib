@@ -14,6 +14,11 @@ unsigned int kev_render_rgb(unsigned char r, unsigned char g, unsigned char b)
     return result;
 }
 
+void kev_render_point(kev_render_buffer buff, int x, int y, unsigned int rgb)
+{
+    buff.buffer[y * buff.width + x] = rgb;
+}
+
 void kev_render_debug_rgb(unsigned int rgb)
 {
     printf("%3d,%3d,%3d\n", (rgb & 0x00ff0000) >> 16, (rgb & 0x0000ff00) >> 8, (rgb & 0x000000ff));
@@ -130,6 +135,76 @@ void kev_render_line_high_slope(kev_render_buffer buff, int x1, int y1, int x2, 
     kev_render_vert_line(buff, x2, last_drawn_y, y2, rgb); // use y2 as y1 has overshot it
 
 }
+void kev_render_float_line(kev_render_buffer buff, float x1, float y1, float x2, float y2, unsigned int rgb)
+{
+
+    float run = x2 - x1;
+    float rise = y2 - y1;
+    float abs_rise = fabs(rise);
+    float abs_run = fabs(run);
+    float start_x = roundf(x1);
+    float start_y = roundf(y1);
+    float end_x = roundf(x2);
+    float end_y = roundf(y2);
+    float pixel_rounded_run = end_x - start_x;
+    float pixel_rounded_rise = end_y - start_y;
+    float abs_pixel_rounded_run = abs(pixel_rounded_run);
+    float abs_pixel_rounded_rise = abs(pixel_rounded_rise);
+    if (abs_pixel_rounded_run == 0.0)
+    {
+        kev_render_vert_line(buff, start_x, start_y, end_y, rgb);	
+    }
+    else if (abs_pixel_rounded_rise == 0.0)
+    {
+        kev_render_horiz_line(buff, start_x, end_x, start_y, rgb);
+    }
+    else if (abs_pixel_rounded_run > abs_pixel_rounded_rise)
+    {
+        float abs_min_div_by_maj = abs_pixel_rounded_rise / abs_pixel_rounded_run;
+        printf("min over maj %f\n", abs_min_div_by_maj);
+        float error = (y2 - start_y) - ((rise / run) * (x2 - start_x));
+        float x_step = run / abs_run;
+        float y_step = rise / abs_rise;
+        error = error * y_step; // therefore a positive error is always "towards the next row of pixels we'll soon switch to" as line drawing progresses
+        do
+        {
+            printf("error %f\n", error);
+            kev_render_point(buff, start_x, start_y, rgb);
+            start_x += x_step;
+            error += abs_min_div_by_maj;
+            
+            if (error > 0.5) // so we can test against a positive value to determine if we need to switch
+            {
+                error -= 1.0;
+                start_y += y_step;
+            }
+        } while (start_x != end_x);
+        kev_render_point(buff, start_x, start_y, rgb);
+    }
+    else
+    {
+        float abs_min_div_by_maj = abs_pixel_rounded_run / abs_pixel_rounded_rise;
+        printf("high slope min over maj %f\n", abs_min_div_by_maj);
+        float error = abs_pixel_rounded_run - ((abs_run / abs_rise) * abs_pixel_rounded_rise);
+        float x_step = rise / abs_rise;
+        float y_step = run / abs_run;
+        do
+        {
+            printf("error %f\n", error);
+            kev_render_point(buff, start_x, start_y, rgb);
+            start_x += x_step;
+            error += abs_min_div_by_maj;
+            
+            if (error > 0.5)
+            {
+                error -= 1.0;
+                start_y += y_step;
+            }
+        } while (start_x != end_x);
+        kev_render_point(buff, start_x, start_y, rgb);
+    }
+}
+
 
 void kev_render_line(kev_render_buffer buff, int x1, int y1, int x2, int y2, unsigned int rgb)
 {
@@ -160,10 +235,7 @@ void kev_render_line(kev_render_buffer buff, int x1, int y1, int x2, int y2, uns
     }
 }
 
-void kev_render_point(kev_render_buffer buff, int x, int y, unsigned int rgb)
-{
-    buff.buffer[y * buff.width + x] = rgb;
-}
+
 void kev_render_fill(kev_render_buffer buff, unsigned int rgb)
 {
     for (int i = 0; i < buff.width * buff.height; i++)
