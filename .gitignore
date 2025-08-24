@@ -6,6 +6,7 @@ kev_winter_example/kev_winter_example
 floats_test/floats_test
 kev_caster_2/kev_caster_2
 kev_render_test/kev_render_test
+lines_test/lines_test
 *.exe
 
 # object files
