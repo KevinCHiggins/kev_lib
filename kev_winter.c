@@ -46,8 +46,8 @@ void kev_win_init(kev_win *win)
 	RECT rect;
 	rect.left   = left;
 	rect.top    = top;
-	rect.right  = left + win->width;
-	rect.bottom = top + win->height;
+	rect.right  = left + win->width * win->scale;
+	rect.bottom = top + win->height * win->scale;
 
 	UINT style = WS_OVERLAPPEDWINDOW;
 
@@ -113,7 +113,7 @@ void redraw(kev_win *win)
 {
 	//printf("Redrawering...\n");
 	//printf("%d", win->buffer[0]);
-	StretchDIBits(hdc, 0, 0, win->width, win->height, 0, 0,win->width, win->height, win->buffer, &buff_info, DIB_RGB_COLORS, SRCCOPY);
+	StretchDIBits(hdc, 0, 0, win->width*win->scale, win->height*win->scale, 0, 0,win->width, win->height, win->buffer, &buff_info, DIB_RGB_COLORS, SRCCOPY);
 
 
 }

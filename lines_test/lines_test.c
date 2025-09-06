@@ -90,7 +90,7 @@ int run()
 
         kev_render_fill(render_buffer, reddish);
 
-        kev_render_float_line(render_buffer, 160.0, 120.0, 170.0 + ang, 120.0 + ang, white);
+        kev_render_float_line(render_buffer, 160.0, 120.0, 170.0 + ang, 170.0, white);
         kev_win_update_events(&win);
         frame_time = regulate_frame_time(FRAME_TIME_NS);
         ang += 0.01;

@@ -139,70 +139,47 @@ void kev_render_float_line(kev_render_buffer buff, float x1, float y1, float x2,
 {
 
     float run = x2 - x1;
-    float rise = y2 - y1;
-    float abs_rise = fabs(rise);
-    float abs_run = fabs(run);
-    float start_x = roundf(x1);
-    float start_y = roundf(y1);
-    float end_x = roundf(x2);
-    float end_y = roundf(y2);
-    float pixel_rounded_run = end_x - start_x;
-    float pixel_rounded_rise = end_y - start_y;
-    float abs_pixel_rounded_run = abs(pixel_rounded_run);
-    float abs_pixel_rounded_rise = abs(pixel_rounded_rise);
-    if (abs_pixel_rounded_run == 0.0)
+    float rise = y2 - y1; // in screen space... so this "rise" goes down
+    float pixel_rounded_run = roundf(run);
+    float pixel_rounded_rise = roundf(rise);
+
+    if (pixel_rounded_run == 0.0)
     {
-        kev_render_vert_line(buff, start_x, start_y, end_y, rgb);	
+        kev_render_vert_line(buff, (int)roundf(x1), (int)roundf(y1), (int)roundf(y2), rgb);	
     }
-    else if (abs_pixel_rounded_rise == 0.0)
+    else if (pixel_rounded_rise == 0.0)
     {
-        kev_render_horiz_line(buff, start_x, end_x, start_y, rgb);
-    }
-    else if (abs_pixel_rounded_run > abs_pixel_rounded_rise)
-    {
-        float abs_min_div_by_maj = abs_pixel_rounded_rise / abs_pixel_rounded_run;
-        printf("min over maj %f\n", abs_min_div_by_maj);
-        float error = (y2 - start_y) - ((rise / run) * (x2 - start_x));
-        float x_step = run / abs_run;
-        float y_step = rise / abs_rise;
-        error = error * y_step; // therefore a positive error is always "towards the next row of pixels we'll soon switch to" as line drawing progresses
-        do
-        {
-            printf("error %f\n", error);
-            kev_render_point(buff, start_x, start_y, rgb);
-            start_x += x_step;
-            error += abs_min_div_by_maj;
-            
-            if (error > 0.5) // so we can test against a positive value to determine if we need to switch
-            {
-                error -= 1.0;
-                start_y += y_step;
-            }
-        } while (start_x != end_x);
-        kev_render_point(buff, start_x, start_y, rgb);
+        kev_render_horiz_line(buff, (int)roundf(x1), (int)roundf(x2), (int)roundf(y1), rgb);
     }
     else
+    // low slope, positive rise, positive run for the moment
     {
-        float abs_min_div_by_maj = abs_pixel_rounded_run / abs_pixel_rounded_rise;
-        printf("high slope min over maj %f\n", abs_min_div_by_maj);
-        float error = abs_pixel_rounded_run - ((abs_run / abs_rise) * abs_pixel_rounded_rise);
-        float x_step = rise / abs_rise;
-        float y_step = run / abs_run;
-        do
+
+        float column = roundf(x1);  // we always draw given start pixel, although it may not be most accurate for line length or position
+        float row = roundf(y1);     // same
+        float end_column = roundf(x2);
+        float start_of_current_span = column; // span is what gets drawn as horiz line
+        float error_per_column = rise/run;
+        // to get y error (difference) at centre of first pixel: slope by x difference *to* centre of start column, shifted by y difference from centre of start row
+        float error = (error_per_column * (column - x1)) + (y1 - row);
+        while (column < end_column)
         {
-            printf("error %f\n", error);
-            kev_render_point(buff, start_x, start_y, rgb);
-            start_x += x_step;
-            error += abs_min_div_by_maj;
-            
+
+            error += error_per_column;
             if (error > 0.5)
             {
-                error -= 1.0;
-                start_y += y_step;
+                kev_render_horiz_line(buff, start_of_current_span, column, row, rgb);
+
+                start_of_current_span = column + 1;
+                row++;
+                error--;
             }
-        } while (start_x != end_x);
-        kev_render_point(buff, start_x, start_y, rgb);
+            column++;
+            printf("error %f\n", error);
+        };
+        kev_render_horiz_line(buff, start_of_current_span, column, row, rgb);
     }
+
 }
 
 
