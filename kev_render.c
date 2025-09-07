@@ -143,6 +143,7 @@ void kev_render_float_line(kev_render_buffer buff, float x1, float y1, float x2,
     float pixel_rounded_run = roundf(run);
     float pixel_rounded_rise = roundf(rise);
 
+
     if (pixel_rounded_run == 0.0)
     {
         kev_render_vert_line(buff, (int)roundf(x1), (int)roundf(y1), (int)roundf(y2), rgb);	
@@ -152,17 +153,19 @@ void kev_render_float_line(kev_render_buffer buff, float x1, float y1, float x2,
         kev_render_horiz_line(buff, (int)roundf(x1), (int)roundf(x2), (int)roundf(y1), rgb);
     }
     else
-    // low slope, positive rise, positive run for the moment
+    // low slope, positive rise, positive/negative run for the moment
     {
 
         float column = roundf(x1);  // we always draw given start pixel, although it may not be most accurate for line length or position
         float row = roundf(y1);     // same
         float end_column = roundf(x2);
         float start_of_current_span = column; // span is what gets drawn as horiz line
-        float error_per_column = rise/run;
-        // to get y error (difference) at centre of first pixel: slope by x difference *to* centre of start column, shifted by y difference from centre of start row
-        float error = (error_per_column * (column - x1)) + (y1 - row);
-        while (column < end_column)
+        float error_per_column = fabs(rise/run);
+        int x_step = (run / fabs(run));
+        int y_step = (rise / fabs(rise));
+        // to get y error (difference) at centre of first pixel: slope by x difference *to* centre of start column in direction of x_step, shifted by y difference from centre of start row
+        float error = (error_per_column * (x_step * (column - x1))) + (y_step * (y1 - row));
+        while (column != end_column)
         {
 
             error += error_per_column;
@@ -170,14 +173,22 @@ void kev_render_float_line(kev_render_buffer buff, float x1, float y1, float x2,
             {
                 kev_render_horiz_line(buff, start_of_current_span, column, row, rgb);
 
-                start_of_current_span = column + 1;
-                row++;
+                start_of_current_span = column + x_step;
+                row += y_step;
                 error--;
             }
-            column++;
+            column += x_step;
             printf("error %f\n", error);
         };
-        kev_render_horiz_line(buff, start_of_current_span, column, row, rgb);
+        // check for case where algorithm hasn't reached last pixel's row
+        float end_row = roundf(y2);
+        if (row == end_row - y_step)
+        {
+            kev_render_horiz_line(buff, start_of_current_span, column - x_step, row, rgb);
+            start_of_current_span = column;
+
+        }
+        kev_render_horiz_line(buff, start_of_current_span, column, end_row, rgb); // using end_row ensures we don't draw past it (when the line, if continued would hit column centre one row further than end row)
     }
 
 }
